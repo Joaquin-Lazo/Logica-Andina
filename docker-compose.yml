@@ -10,7 +10,7 @@ services:
       - ./init.sql:/docker-entrypoint-initdb.d/init.sql
     ports:
       - "3307:3306"
-
+      
   app:
     build: ./frontend-service
     container_name: welcome_app
@@ -18,3 +18,27 @@ services:
       - "8088:80"
     depends_on:
       - db
+
+  user-service:
+    build: ./user-service
+    container_name: user_service_app
+    ports:
+      - "8080:8080"
+    depends_on:
+      - db
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:mysql://db:3306/auth_db?useSSL=false&allowPublicKeyRetrieval=true
+      - SPRING_DATASOURCE_USERNAME=root
+      - SPRING_DATASOURCE_PASSWORD=rootPassword
+
+  route-service:
+    build: ./route_service
+    container_name: route_service_app
+    ports:
+      - "8081:8081"
+    depends_on:
+      - db
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:mysql://db:3306/routes_db?useSSL=false&allowPublicKeyRetrieval=true
+      - SPRING_DATASOURCE_USERNAME=root
+      - SPRING_DATASOURCE_PASSWORD=rootPassword
