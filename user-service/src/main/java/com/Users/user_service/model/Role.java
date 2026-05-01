@@ -1,4 +1,4 @@
-package com.shopsmart.user_service.model;
+package com.Users.user_service.model;
 
 import jakarta.persistence.*;
 import lombok.Data;
