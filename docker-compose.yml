@@ -37,10 +37,23 @@ services:
       - SPRING_DATASOURCE_USERNAME=root
       - SPRING_DATASOURCE_PASSWORD=rootPassword
 
+  bff-service:
+    build: ./bff-service
+    container_name: bff_service_app
+    restart: on-failure
+    ports:
+      - "8082:8082" 
+    depends_on:
+      - user-service
+      - route-service
+    environment:
+      - USER_SERVICE_URL=http://user-service:8080
+      - ROUTE_SERVICE_URL=http://route-service:8081
+
   app:
     build: ./frontend-service
-    container_name: logicaandina-app
+    container_name: welcome_app
     ports:
       - "8088:3000"
     depends_on:
-      - db
+      - bff-service

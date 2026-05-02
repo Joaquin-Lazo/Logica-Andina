@@ -1,6 +1,7 @@
 package com.bff.bff_service.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -18,25 +19,29 @@ public class AuthService {
 
     private final RestTemplate restTemplate;
 
+    @Value("${USER_SERVICE_URL:http://localhost:8080}")
+    private String userServiceUrl;
+
+    @Value("${ROUTE_SERVICE_URL:http://localhost:8081}")
+    private String routeServiceUrl;
+
     @Autowired
     public AuthService(RestTemplate restTemplate) {
         this.restTemplate = restTemplate;
     }
 
     public String getUserServiceToken() {
-        // Replace with your actual User Service login URL
-        String authUrl = "http://localhost:8080/api/auth/login"; 
+        String authUrl = userServiceUrl + "/api/auth/login"; 
         
         Map<String, String> credentials = new HashMap<>();
-        credentials.put("username", "admin"); // Adjust key if your API expects 'correo' or 'rut'
+        credentials.put("username", "admin"); 
         credentials.put("password", "admin123");
 
         return executeAuthRequest(authUrl, credentials);
     }
 
     public String getRouteServiceToken() {
-        // Replace with your actual Route Service login URL
-        String authUrl = "http://localhost:8081/api/auth/login"; 
+        String authUrl = routeServiceUrl + "/api/auth/login"; 
         
         Map<String, String> credentials = new HashMap<>();
         credentials.put("username", "route"); 
@@ -52,7 +57,6 @@ public class AuthService {
             
             HttpEntity<Map<String, String>> request = new HttpEntity<>(credentials, headers);
             
-            // Using ParameterizedTypeReference eliminates the raw type warning
             ResponseEntity<Map<String, String>> response = restTemplate.exchange(
                     url,
                     HttpMethod.POST,
@@ -61,7 +65,6 @@ public class AuthService {
             );
             
             if (response.getStatusCode().is2xxSuccessful() && response.getBody() != null) {
-                // No casting required now because Java knows the value is a String
                 return response.getBody().get("token"); 
             }
         } catch (Exception e) {

@@ -5,6 +5,7 @@ import com.bff.bff_service.dto.RouteSummaryDTO;
 import com.bff.bff_service.dto.UserSummaryDTO;
 import com.bff.bff_service.service.AuthService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -27,6 +28,12 @@ public class DashboardController {
     private final RestTemplate restTemplate;
     private final AuthService authService;
 
+    @Value("${USER_SERVICE_URL:http://localhost:8080}")
+    private String userServiceUrl;
+
+    @Value("${ROUTE_SERVICE_URL:http://localhost:8081}")
+    private String routeServiceUrl;
+
     @Autowired
     public DashboardController(RestTemplate restTemplate, AuthService authService) {
         this.restTemplate = restTemplate;
@@ -47,7 +54,7 @@ public class DashboardController {
                 HttpEntity<Void> entity = new HttpEntity<>(headers);
 
                 ResponseEntity<List<UserSummaryDTO>> userResponse = restTemplate.exchange(
-                        "http://localhost:8080/api/users",
+                        userServiceUrl + "/api/users",
                         HttpMethod.GET,
                         entity,
                         new ParameterizedTypeReference<List<UserSummaryDTO>>() {}
@@ -69,7 +76,7 @@ public class DashboardController {
                 HttpEntity<Void> entity = new HttpEntity<>(headers);
 
                 ResponseEntity<List<RouteSummaryDTO>> routeResponse = restTemplate.exchange(
-                        "http://localhost:8081/api/routes",
+                        routeServiceUrl + "/api/routes",
                         HttpMethod.GET,
                         entity,
                         new ParameterizedTypeReference<List<RouteSummaryDTO>>() {}
