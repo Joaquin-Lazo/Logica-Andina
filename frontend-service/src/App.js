@@ -54,10 +54,10 @@ const App = () => {
                     <tr><td colSpan="3">Sin datos de usuarios</td></tr>
                   ) : (
                     dashboardData.users.map((user) => (
-                      <tr key={user.id}>
-                        <td>{user.id}</td>
-                        <td>{user.nombre}</td>
-                        <td>{user.rol}</td>
+                      <tr key={user.idUsuario}>
+                        <td>{user.idUsuario}</td>
+                        <td>{user.nombres} {user.apellidos}</td>
+                        <td>{user.rol.nombreRol.replace('ROLE_', '')}</td>
                       </tr>
                     ))
                   )}
@@ -80,9 +80,9 @@ const App = () => {
                     <tr><td colSpan="3">Sin datos de rutas</td></tr>
                   ) : (
                     dashboardData.routes.map((route) => (
-                      <tr key={route.id}>
-                        <td>{route.id}</td>
-                        <td>Camión #{route.camion_id}</td>
+                      <tr key={route.idRuta}>
+                        <td>{route.idRuta}</td>
+                        <td>Camión #{route.truck.patente}</td>
                         <td>
                           <span className={`status-badge ${route.estado.toLowerCase().replace(" ", "-")}`}>
                             {route.estado}
