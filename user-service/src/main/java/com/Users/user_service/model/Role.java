@@ -1,11 +1,15 @@
 package com.Users.user_service.model;
 
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Data
 @Entity
 @Table(name = "roles")
+@NoArgsConstructor
+@AllArgsConstructor
 public class Role {
     
     @Id

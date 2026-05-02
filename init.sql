@@ -1,6 +1,3 @@
--- =========================================================================
--- MICROSERVICIO DE USUARIOS Y ROLES (auth_db)
--- =========================================================================
 CREATE DATABASE IF NOT EXISTS auth_db;
 USE auth_db;
 
@@ -40,10 +37,6 @@ INSERT INTO usuarios (id_rol, rut, nombres, apellidos, correo, password_hash) VA
 (3, '66666666-6', 'Miguel', 'Tapia', 'mtapia@transandina.cl', 'dummyhash303'),
 (3, '77777777-7', 'Roberto', 'Salinas', 'rsalinas@transandina.cl', 'dummyhash404');
 
-
--- =========================================================================
--- MICROSERVICIO DE RUTAS Y LOGÍSTICA (routes_db)
--- =========================================================================
 CREATE DATABASE IF NOT EXISTS routes_db;
 USE routes_db;
 
@@ -120,7 +113,7 @@ INSERT INTO clientes (rut_empresa, razon_social, direccion_facturacion, correo_c
 INSERT INTO rutas (id_conductor_ref, id_despachador_ref, id_camion, origen_direccion, destino_direccion, lat_destino, lng_destino, distancia_estimada_km, estado) VALUES
 (3, 2, 1, 'Centro Logístico Santiago', 'Bodega Central Puerto Montt', -41.46930000, -72.94230000, 1030.5, 'En Transito'),
 (5, 4, 3, 'Centro Logístico Santiago', 'Faena Minera Antofagasta', -23.65000000, -70.40000000, 1335.2, 'Pendiente'),
-(6, 2, 5, 'Puerto San Antonio', 'Centro de Distribución Quilicura', -33.36440000, -70.73000000, 115.8, 'Completada');
+(6, 2, 3, 'Puerto San Antonio', 'Centro de Distribución Quilicura', -33.36440000, -70.73000000, 115.8, 'Completada');
 
 INSERT INTO cargamentos (id_ruta, id_cliente, descripcion_productos, tipo_carga, peso_toneladas, volumen_m3, estado_entrega) VALUES
 (1, 2, 'Electrodomésticos y Línea Blanca', 'General', 15.5, 60.0, 'Intacto'),
@@ -133,9 +126,6 @@ INSERT INTO facturas (id_ruta, id_cliente, monto_neto, impuestos, total_pagar, e
 (3, 3, 450000.00, 85500.00, 535500.00, 'Pagada');
 
 
--- =========================================================================
--- MICROSERVICIO DE TELEMETRÍA Y GPS (telemetry_db)
--- =========================================================================
 CREATE DATABASE IF NOT EXISTS telemetry_db;
 USE telemetry_db;
 
