@@ -1,4 +1,4 @@
-package com.bff.bffservice.dto;
+package com.bff.bff_service.dto;
 import lombok.Data;
 
 @Data

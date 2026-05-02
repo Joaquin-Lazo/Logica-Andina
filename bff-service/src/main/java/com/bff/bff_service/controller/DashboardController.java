@@ -39,7 +39,6 @@ public class DashboardController {
         dashboardResponse.setUsers(new ArrayList<>());
         dashboardResponse.setRoutes(new ArrayList<>());
 
-        // 1. Authenticate and fetch data from User Service
         String userToken = authService.getUserServiceToken();
         if (userToken != null) {
             try {
@@ -62,7 +61,6 @@ public class DashboardController {
             }
         }
 
-        // 2. Authenticate and fetch data from Route Service
         String routeToken = authService.getRouteServiceToken();
         if (routeToken != null) {
             try {
