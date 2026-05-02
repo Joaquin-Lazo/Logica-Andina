@@ -1,4 +1,4 @@
-package com.routes.route_service.security;
+package com.Users.user_service.security;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;

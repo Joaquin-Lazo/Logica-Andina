@@ -39,7 +39,7 @@ services:
 
   app:
     build: ./frontend-service
-    container_name: logicaandina-app
+    container_name: welcome_app
     ports:
       - "8088:3000"
     depends_on:

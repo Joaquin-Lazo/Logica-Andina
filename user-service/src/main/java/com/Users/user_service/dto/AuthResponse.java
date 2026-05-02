@@ -1,4 +1,4 @@
-package com.routes.route_service.dto;
+package com.Users.user_service.dto;
 
 public record AuthResponse(String token) {
     

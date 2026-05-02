@@ -2,11 +2,16 @@ package com.Users.user_service.model;
 
 import jakarta.persistence.*;
 import lombok.Data;
+import lombok.NoArgsConstructor;
+import lombok.AllArgsConstructor;
+
 import java.time.LocalDateTime;
 
 @Data
 @Entity
 @Table(name = "usuarios")
+@NoArgsConstructor
+@AllArgsConstructor
 public class User {
     
     @Id
