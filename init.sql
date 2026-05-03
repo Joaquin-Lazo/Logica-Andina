@@ -1,4 +1,7 @@
-CREATE DATABASE IF NOT EXISTS auth_db;
+SET NAMES utf8mb4;
+SET CHARACTER SET utf8mb4;
+
+CREATE DATABASE IF NOT EXISTS auth_db CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 USE auth_db;
 
 CREATE TABLE IF NOT EXISTS roles (
@@ -28,16 +31,27 @@ INSERT INTO roles (nombre_rol, descripcion) VALUES
 ('ROLE_DESPACHADOR', 'Asigna rutas y monitorea alertas'),
 ('ROLE_CONDUCTOR', 'Recibe rutas y emite coordenadas GPS');
 
+USE auth_db;
+
 INSERT INTO usuarios (id_rol, rut, nombres, apellidos, correo, password_hash) VALUES
 (1, '11111111-1', 'Admin', 'Sistema', 'admin@transandina.cl', 'dummyhash123'),
-(2, '22222222-2', 'Carlos', 'Despachador', 'carlos@transandina.cl', 'dummyhash456'),
-(3, '33333333-3', 'Juan', 'Chofer', 'juan@transandina.cl', 'dummyhash789'),
-(2, '44444444-4', 'Andrea', 'Mendoza', 'amendoza@transandina.cl', 'dummyhash101'),
-(3, '55555555-5', 'Luis', 'Perez', 'lperez@transandina.cl', 'dummyhash202'),
-(3, '66666666-6', 'Miguel', 'Tapia', 'mtapia@transandina.cl', 'dummyhash303'),
-(3, '77777777-7', 'Roberto', 'Salinas', 'rsalinas@transandina.cl', 'dummyhash404');
+(2, '22222222-2', 'Carlos', 'Valdes', 'cvaldes@transandina.cl', 'dummyhash'),
+(2, '33333333-3', 'Andrea', 'Mendoza', 'amendoza@transandina.cl', 'dummyhash'),
+(2, '44444444-4', 'Felipe', 'Rojas', 'frojas@transandina.cl', 'dummyhash'),
+(2, '55555555-5', 'Laura', 'Gomez', 'lgomez@transandina.cl', 'dummyhash'),
+(2, '66666666-6', 'Valentina', 'Soto', 'vsoto@transandina.cl', 'dummyhash'),
+(3, '77777777-7', 'Juan', 'Chofer', 'jchofer@transandina.cl', 'dummyhash'),
+(3, '88888888-8', 'Luis', 'Perez', 'lperez@transandina.cl', 'dummyhash'),
+(3, '99999999-9', 'Miguel', 'Tapia', 'mtapia@transandina.cl', 'dummyhash'),
+(3, '10101010-0', 'Roberto', 'Salinas', 'rsalinas@transandina.cl', 'dummyhash'),
+(3, '11223344-1', 'Sebastian', 'Valenzuela', 'svalenzuela@transandina.cl', 'dummyhash'),
+(3, '12233445-2', 'Natalia', 'Rios', 'nrios@transandina.cl', 'dummyhash'),
+(3, '13344556-3', 'Esteban', 'Paredes', 'eparedes@transandina.cl', 'dummyhash'),
+(3, '14455667-4', 'Diego', 'Muñoz', 'dmunoz@transandina.cl', 'dummyhash'),
+(3, '15566778-5', 'Hector', 'Silva', 'hsilva@transandina.cl', 'dummyhash'),
+(3, '16677889-6', 'Camila', 'Morales', 'cmorales@transandina.cl', 'dummyhash');
 
-CREATE DATABASE IF NOT EXISTS routes_db;
+CREATE DATABASE IF NOT EXISTS routes_db CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 USE routes_db;
 
 CREATE TABLE IF NOT EXISTS camiones (
@@ -101,24 +115,57 @@ CREATE TABLE IF NOT EXISTS facturas (
 
 -- Data para rutas
 INSERT INTO camiones (patente, marca_modelo, capacidad_max_toneladas, estado_operativo) VALUES
-('FG-HJ-34', 'Mercedes-Benz Actros', 30.0, 'Disponible'),
-('KL-MN-56', 'Mack Anthem', 22.5, 'En Mantenimiento'),
-('OP-QR-78', 'Kenworth T680', 26.0, 'Disponible');
+('AB-CD-12', 'Volvo FH16', 30.0, 'En Ruta'),
+('EF-GH-34', 'Scania R500', 28.0, 'En Ruta'),
+('IJ-KL-56', 'Mercedes-Benz Arocs', 25.0, 'En Ruta'),
+('MN-OP-78', 'Volvo FMX', 32.0, 'En Ruta'),
+('QR-ST-90', 'Scania G410', 22.0, 'En Ruta'),
+('UV-WX-12', 'Mack Pinnacle', 24.0, 'En Ruta'),
+('YZ-AB-34', 'Freightliner Cascadia', 26.5, 'En Ruta'),
+('KL-MN-56', 'Kenworth T680', 26.0, 'Disponible'),
+('OP-QR-78', 'Mercedes-Benz Actros', 30.0, 'Disponible'),
+('ST-UV-90', 'Mack Anthem', 22.5, 'Disponible');
 
 INSERT INTO clientes (rut_empresa, razon_social, direccion_facturacion, correo_contacto) VALUES
-('77777777-K', 'Minera Norte SpA', 'Av. Industrial 400, Antofagasta', 'pagos@mineranorte.cl'),
-('88888888-8', 'Retail del Sur S.A.', 'Ruta 5 Sur Km 1000, Puerto Montt', 'logistica@retaildelsur.cl'),
-('99999999-9', 'Supermercados El Valle', 'Av. Central 123, Santiago', 'facturacion@elvalle.cl');
+('11111111-K', 'Minera Norte SpA', 'Av. Industrial 400, Antofagasta', 'pagos@mineranorte.cl'),
+('22222222-2', 'Retail del Sur S.A.', 'Ruta 5 Sur Km 1000, Puerto Montt', 'logistica@retaildelsur.cl'),
+('33333333-3', 'Supermercados El Valle', 'Av. Central 123, Santiago', 'facturacion@elvalle.cl'),
+('44444444-4', 'Exportadora Andina', 'Ruta 68 Km 15, Casablanca', 'logistica@exportandina.cl'),
+('55555555-5', 'Agricola del Maule', 'Camino Real S/N, Talca', 'despachos@agrimaule.cl');
 
 INSERT INTO rutas (id_conductor_ref, id_despachador_ref, id_camion, origen_direccion, destino_direccion, lat_destino, lng_destino, distancia_estimada_km, estado) VALUES
-(3, 2, 1, 'Centro Logístico Santiago', 'Bodega Central Puerto Montt', -41.46930000, -72.94230000, 1030.5, 'En Transito'),
-(5, 4, 3, 'Centro Logístico Santiago', 'Faena Minera Antofagasta', -23.65000000, -70.40000000, 1335.2, 'Pendiente'),
-(6, 2, 3, 'Puerto San Antonio', 'Centro de Distribución Quilicura', -33.36440000, -70.73000000, 115.8, 'Completada');
+(7, 2, 1, 'Centro Logístico Renca, Santiago', 'Faena Minera Antofagasta', -23.65000000, -70.40000000, 1335.2, 'En Transito'),
+(8, 3, 2, 'Puerto San Antonio', 'Centro de Distribución Quilicura', -33.36440000, -70.73000000, 115.8, 'En Transito'),
+(9, 4, 3, 'Bodega Central, Santiago', 'Puerto Coronel, Concepción', -36.82010000, -73.04440000, 500.2, 'En Transito'),
+(10, 5, 4, 'Puerto Valparaíso', 'Bodegas La Serena', -29.90270000, -71.25190000, 430.0, 'En Transito'),
+(11, 6, 5, 'Planta Industrial Temuco', 'Puerto Montt, Zona Sur', -41.46930000, -72.94230000, 355.0, 'En Transito'),
+(12, 2, 6, 'Zofri Iquique', 'Arica Puerto', -18.47830000, -70.31260000, 310.0, 'En Transito'),
+(13, 3, 7, 'Rancagua Agro', 'Talca Centro de Acopio', -35.42640000, -71.65540000, 170.5, 'En Transito'),
+(14, 4, 8, 'Bodega Maipú, Santiago', 'Puerto Valparaíso', -33.04560000, -71.62140000, 120.0, 'Completada'),
+(15, 5, 9, 'Minera Antofagasta', 'Puerto Iquique', -20.21330000, -70.15030000, 415.0, 'Completada'),
+(16, 6, 10, 'Coronel, Concepción', 'Temuco Industrial', -38.73970000, -72.59010000, 260.0, 'Completada'),
+(7, 2, 1, 'Talca Acopio', 'Centro Logístico Renca, Santiago', -33.40000000, -70.70000000, 255.0, 'Completada'),
+(14, 3, 8, 'Puerto Valparaíso', 'San Antonio Bodegas', -33.58330000, -71.61670000, 105.0, 'Pendiente'),
+(15, 4, 9, 'Zofri Iquique', 'Minera Antofagasta', -23.65000000, -70.40000000, 415.0, 'Pendiente'),
+(16, 5, 10, 'Temuco Industrial', 'Valdivia Centro', -39.81420000, -73.24590000, 165.0, 'Pendiente'),
+(13, 6, 7, 'Talca Centro de Acopio', 'Concepción Industrial', -36.82010000, -73.04440000, 250.0, 'Pendiente');
 
 INSERT INTO cargamentos (id_ruta, id_cliente, descripcion_productos, tipo_carga, peso_toneladas, volumen_m3, estado_entrega) VALUES
-(1, 2, 'Electrodomésticos y Línea Blanca', 'General', 15.5, 60.0, 'Intacto'),
-(2, 1, 'Insumos Químicos para Extracción', 'Peligrosa', 24.0, 45.5, 'Pendiente'),
-(3, 3, 'Abarrotes y Alimentos Secos', 'General', 20.0, 50.0, 'Entregado');
+(1, 1, 'Insumos Químicos Mineros', 'Peligrosa', 24.0, 45.0, 'Pendiente'),
+(2, 3, 'Abarrotes y Enlatados', 'General', 15.5, 60.0, 'Intacto'),
+(3, 5, 'Maquinaria Agrícola', 'Pesada', 20.0, 50.0, 'Pendiente'),
+(4, 4, 'Vino Embotellado', 'Frágil', 18.0, 45.0, 'Pendiente'),
+(5, 2, 'Electrodomésticos', 'General', 12.0, 65.0, 'Pendiente'),
+(6, 1, 'Repuestos Mineros', 'General', 22.0, 30.0, 'Pendiente'),
+(7, 5, 'Fertilizantes', 'Peligrosa', 25.0, 40.0, 'Pendiente'),
+(8, 4, 'Fruta de Exportación', 'Refrigerada', 14.0, 55.0, 'Entregado'),
+(9, 1, 'Cobre Refinado', 'Pesada', 30.0, 20.0, 'Entregado'),
+(10, 2, 'Madera Procesada', 'General', 26.0, 60.0, 'Entregado'),
+(11, 3, 'Carga Consolidada Retail', 'General', 10.0, 45.0, 'Entregado'),
+(12, 4, 'Materiales de Embalaje', 'General', 8.0, 70.0, 'Pendiente'),
+(13, 1, 'Insumos Químicos Secundarios', 'Peligrosa', 20.0, 35.0, 'Pendiente'),
+(14, 2, 'Lácteos y Quesos', 'Refrigerada', 19.5, 50.0, 'Pendiente'),
+(15, 5, 'Semillas Agrícolas', 'General', 22.0, 40.0, 'Pendiente');
 
 INSERT INTO facturas (id_ruta, id_cliente, monto_neto, impuestos, total_pagar, estado_pago) VALUES
 (1, 2, 1500000.00, 285000.00, 1785000.00, 'Pendiente'),
@@ -126,7 +173,7 @@ INSERT INTO facturas (id_ruta, id_cliente, monto_neto, impuestos, total_pagar, e
 (3, 3, 450000.00, 85500.00, 535500.00, 'Pagada');
 
 
-CREATE DATABASE IF NOT EXISTS telemetry_db;
+CREATE DATABASE IF NOT EXISTS telemetry_db CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 USE telemetry_db;
 
 CREATE TABLE IF NOT EXISTS logs_telemetria (

@@ -1,33 +1,76 @@
 import React from "react";
-import { BrowserRouter as Router, Routes, Route, Link } from "react-router-dom";
+import { BrowserRouter as Router, Routes, Route, NavLink } from "react-router-dom";
+import { RoleProvider, useRole, ROLES } from "./context/RoleContext";
 import Dashboard from "./components/Dashboard";
-import CreateRoute from "./components/CreateRoute";
+import ManageRoutes from "./components/ManageRoutes";
+import ManageTrucks from "./components/ManageTrucks";
+import ManageUsers from "./components/ManageUsers";
 import "./App.css";
+
+const RoleSelector = () => {
+  const { role, setRole } = useRole();
+  return (
+    <div className="role-selector">
+      <label>Rol activo:</label>
+      <select value={role} onChange={(e) => setRole(e.target.value)}>
+        <option value={ROLES.ADMIN}>Administrador</option>
+        <option value={ROLES.DESPACHADOR}>Despachador</option>
+        <option value={ROLES.CONDUCTOR}>Conductor</option>
+      </select>
+    </div>
+  );
+};
+
+const AppNav = () => {
+  const { role } = useRole();
+  return (
+    <nav className="main-nav">
+      <NavLink to="/" end className={({ isActive }) => isActive ? "nav-link active" : "nav-link"}>
+        Panel General
+      </NavLink>
+      {(role === ROLES.ADMIN || role === ROLES.DESPACHADOR) && (
+        <NavLink to="/rutas" className={({ isActive }) => isActive ? "nav-link active" : "nav-link"}>
+          Rutas
+        </NavLink>
+      )}
+      {(role === ROLES.ADMIN || role === ROLES.DESPACHADOR) && (
+        <NavLink to="/camiones" className={({ isActive }) => isActive ? "nav-link active" : "nav-link"}>
+          Flota
+        </NavLink>
+      )}
+      {role === ROLES.ADMIN && (
+        <NavLink to="/usuarios" className={({ isActive }) => isActive ? "nav-link active" : "nav-link"}>
+          Usuarios
+        </NavLink>
+      )}
+    </nav>
+  );
+};
 
 const App = () => {
   return (
-    <Router>
-      <div className="App">
-        <header className="App-header">
-          <h1>Logística Andina - Panel de Control</h1>
-          <p>Centro de integración de microservicios</p>
-        </header>
-
-        <nav style={{ margin: '0 auto 30px auto', padding: '15px', backgroundColor: '#333', borderRadius: '8px', maxWidth: '800px', display: 'flex', justifyContent: 'center', gap: '20px' }}>
-          <Link to="/" style={{ color: 'white', textDecoration: 'none', fontWeight: 'bold' }}>
-            Dashboard Overview
-          </Link>
-          <Link to="/create-route" style={{ color: 'white', textDecoration: 'none', fontWeight: 'bold' }}>
-            + Register New Route
-          </Link>
-        </nav>
-
-        <Routes>
-          <Route path="/" element={<Dashboard />} />
-          <Route path="/create-route" element={<CreateRoute />} />
-        </Routes>
-      </div>
-    </Router>
+    <RoleProvider>
+      <Router>
+        <div className="App">
+          <header className="App-header">
+            <div className="header-top">
+              <div>
+                <h1>Logistica Andina - Panel de Control</h1>
+                <p>Centro de integracion de microservicios</p>
+              </div>
+              <RoleSelector />
+            </div>
+          </header>
+          <AppNav />
+          <Routes>
+            <Route path="/" element={<Dashboard />} />
+            <Route path="/rutas" element={<ManageRoutes />} />
+            <Route path="/camiones" element={<ManageTrucks />} />
+            <Route path="/usuarios" element={<ManageUsers />} />
+          </Routes>
+        </div>
+      </Router>
+    </RoleProvider>
   );
 };
 

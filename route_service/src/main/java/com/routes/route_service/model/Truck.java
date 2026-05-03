@@ -6,7 +6,7 @@ import lombok.NoArgsConstructor;
 import lombok.AllArgsConstructor;
 
 @Entity
-@Table(name = "camiones") // This connects your English Truck to the Spanish database table
+@Table(name = "camiones") 
 @Data
 @NoArgsConstructor
 @AllArgsConstructor

@@ -41,7 +41,7 @@ public class TruckController {
 
     @PutMapping("/{id}")
     public ResponseEntity<Truck> updateTruck(@PathVariable Integer id, @RequestBody Truck updatedTruckData) {
-        Optional<Truck> existingTruck = camionRepository.findById(id); // Note: keeping your camionRepository naming here
+        Optional<Truck> existingTruck = camionRepository.findById(id);
         if (existingTruck.isPresent()) {
             Truck truckToUpdate = existingTruck.get();
             

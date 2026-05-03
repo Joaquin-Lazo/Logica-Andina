@@ -19,7 +19,6 @@ public class User {
     @Column(name = "id_usuario")
     private Integer idUsuario;
 
-    // The ManyToMany join table is gone. This is now a direct Foreign Key mapping.
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "id_rol", nullable = false)
     private Role rol;
