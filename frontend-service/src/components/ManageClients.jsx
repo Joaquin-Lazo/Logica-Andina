@@ -15,7 +15,13 @@ const ManageClients = () => {
   const [deleteConfirmId, setDeleteConfirmId] = useState(null);
 
   const fetchClients = useCallback(() => {
-    fetch(`${BFF}/proxy/clients`).then(r => r.json()).then(data => setClients(Array.isArray(data) ? data : [])).catch(() => {});
+    fetch(`${BFF}/proxy/clients`)
+      .then(r => r.json())
+      .then(data => {
+        console.log("Clients response:", data);
+        setClients(Array.isArray(data) ? data : []);
+      })
+      .catch((err) => console.error("Clients fetch error:", err));
   }, []);
 
   useEffect(() => { fetchClients(); }, [fetchClients]);

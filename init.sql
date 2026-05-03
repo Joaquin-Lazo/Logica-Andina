@@ -170,7 +170,7 @@ INSERT INTO cargamentos (id_ruta, id_cliente, descripcion_productos, tipo_carga,
 INSERT INTO facturas (id_ruta, id_cliente, monto_neto, impuestos, total_pagar, estado_pago) VALUES
 (1, 2, 1500000.00, 285000.00, 1785000.00, 'Pendiente'),
 (2, 1, 3200000.00, 608000.00, 3808000.00, 'Pendiente'),
-(3, 3, 450000.00, 85500.00, 535500.00, 'Pagada');
+(3, 3, 450000.00, 85500.00, 535500.00, 'Pagada'),
 (4, 4, 2100000.00, 399000.00, 2499000.00, 'Pendiente'),
 (5, 2, 850000.00, 161500.00, 1011500.00, 'Pendiente'),
 (6, 1, 1750000.00, 332500.00, 2082500.00, 'Pendiente'),
