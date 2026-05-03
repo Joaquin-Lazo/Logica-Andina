@@ -473,6 +473,22 @@
   font-size: 0.85rem;
 }
 
+/* ===== Validation ===== */
+
+.field-group {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-width: 160px;
+}
+
+.field-error {
+  color: #c62828;
+  font-size: 0.75rem;
+  margin-top: 3px;
+  font-weight: 500;
+}
+
 /* ===== Responsive ===== */
 
 @media (max-width: 900px) {

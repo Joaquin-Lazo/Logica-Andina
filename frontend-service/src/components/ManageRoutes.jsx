@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback } from "react";
+import { validateCoord, validateNotEmpty, validatePositiveNumber } from "../utils/validators";
 
 const BFF = "http://localhost:8082/api/dashboard";
 
@@ -14,6 +15,7 @@ const ManageRoutes = () => {
   const [editingId, setEditingId] = useState(null);
   const [showForm, setShowForm] = useState(false);
   const [msg, setMsg] = useState(null);
+  const [errors, setErrors] = useState({});
   const [deleteConfirmId, setDeleteConfirmId] = useState(null);
 
   const fetchRoutes = useCallback(() => {
@@ -34,10 +36,19 @@ const ManageRoutes = () => {
     setEditingId(null);
     setShowForm(false);
     setMsg(null);
+    setErrors({});
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    const errs = {};
+    errs.origenDireccion = validateNotEmpty(form.origenDireccion, 'Origen');
+    errs.destinoDireccion = validateNotEmpty(form.destinoDireccion, 'Destino');
+    errs.coords = validateCoord(form.latDestino, form.lngDestino);
+    errs.distanciaEstimadaKm = validatePositiveNumber(form.distanciaEstimadaKm, 'Distancia');
+    const filtered = Object.fromEntries(Object.entries(errs).filter(([,v]) => v));
+    setErrors(filtered);
+    if (Object.keys(filtered).length > 0) return;
     const payload = {
       idConductorRef: parseInt(form.idConductorRef),
       idDespachadorRef: parseInt(form.idDespachadorRef),
@@ -122,7 +133,10 @@ const ManageRoutes = () => {
               <input name="destinoDireccion" value={form.destinoDireccion} onChange={handleChange} placeholder="Destino" required />
             </div>
             <div className="form-row">
-              <input type="number" step="any" name="latDestino" value={form.latDestino} onChange={handleChange} placeholder="Latitud destino" required />
+              <div className="field-group">
+                <input type="number" step="any" name="latDestino" value={form.latDestino} onChange={handleChange} placeholder="Latitud destino" required />
+                {errors.coords && <span className="field-error">{errors.coords}</span>}
+              </div>
               <input type="number" step="any" name="lngDestino" value={form.lngDestino} onChange={handleChange} placeholder="Longitud destino" required />
             </div>
             <div className="form-row">

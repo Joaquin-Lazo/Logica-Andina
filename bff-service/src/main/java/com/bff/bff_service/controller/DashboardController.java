@@ -238,4 +238,67 @@ public class DashboardController {
     public ResponseEntity<Object> deleteUser(@PathVariable Integer id) {
         return proxyToUser("/api/users/" + id, HttpMethod.DELETE, null);
     }
+
+    // --- Cargamentos ---
+    @GetMapping("/proxy/cargo")
+    public ResponseEntity<Object> getCargo() {
+        return proxyToRoute("/api/cargo", HttpMethod.GET, null);
+    }
+
+    @PostMapping("/proxy/cargo")
+    public ResponseEntity<Object> createCargo(@RequestBody Object payload) {
+        return proxyToRoute("/api/cargo", HttpMethod.POST, payload);
+    }
+
+    @PutMapping("/proxy/cargo/{id}")
+    public ResponseEntity<Object> updateCargo(@PathVariable Integer id, @RequestBody Object payload) {
+        return proxyToRoute("/api/cargo/" + id, HttpMethod.PUT, payload);
+    }
+
+    @DeleteMapping("/proxy/cargo/{id}")
+    public ResponseEntity<Object> deleteCargo(@PathVariable Integer id) {
+        return proxyToRoute("/api/cargo/" + id, HttpMethod.DELETE, null);
+    }
+
+    // --- Clientes ---
+    @GetMapping("/proxy/clients")
+    public ResponseEntity<Object> getClients() {
+        return proxyToRoute("/api/clients", HttpMethod.GET, null);
+    }
+
+    @PostMapping("/proxy/clients")
+    public ResponseEntity<Object> createClient(@RequestBody Object payload) {
+        return proxyToRoute("/api/clients", HttpMethod.POST, payload);
+    }
+
+    @PutMapping("/proxy/clients/{id}")
+    public ResponseEntity<Object> updateClient(@PathVariable Integer id, @RequestBody Object payload) {
+        return proxyToRoute("/api/clients/" + id, HttpMethod.PUT, payload);
+    }
+
+    @DeleteMapping("/proxy/clients/{id}")
+    public ResponseEntity<Object> deleteClient(@PathVariable Integer id) {
+        return proxyToRoute("/api/clients/" + id, HttpMethod.DELETE, null);
+    }
+
+    // --- Facturas ---
+    @GetMapping("/proxy/invoices")
+    public ResponseEntity<Object> getInvoices() {
+        return proxyToRoute("/api/invoices", HttpMethod.GET, null);
+    }
+
+    @PostMapping("/proxy/invoices")
+    public ResponseEntity<Object> createInvoice(@RequestBody Object payload) {
+        return proxyToRoute("/api/invoices", HttpMethod.POST, payload);
+    }
+
+    @PutMapping("/proxy/invoices/{id}")
+    public ResponseEntity<Object> updateInvoice(@PathVariable Integer id, @RequestBody Object payload) {
+        return proxyToRoute("/api/invoices/" + id, HttpMethod.PUT, payload);
+    }
+
+    @DeleteMapping("/proxy/invoices/{id}")
+    public ResponseEntity<Object> deleteInvoice(@PathVariable Integer id) {
+        return proxyToRoute("/api/invoices/" + id, HttpMethod.DELETE, null);
+    }
 }

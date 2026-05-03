@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback } from "react";
+import { validateRut, validateEmail, validateNotEmpty } from "../utils/validators";
 
 const BFF = "http://localhost:8082/api/dashboard";
 
@@ -14,6 +15,7 @@ const ManageUsers = () => {
   const [editingId, setEditingId] = useState(null);
   const [showForm, setShowForm] = useState(false);
   const [msg, setMsg] = useState(null);
+  const [errors, setErrors] = useState({});
   const [deleteConfirmId, setDeleteConfirmId] = useState(null);
 
   const fetchUsers = useCallback(() => {
@@ -30,10 +32,18 @@ const ManageUsers = () => {
     setForm({ ...form, [e.target.name]: val });
   };
 
-  const resetForm = () => { setForm(EMPTY_FORM); setEditingId(null); setShowForm(false); setMsg(null); };
+  const resetForm = () => { setForm(EMPTY_FORM); setEditingId(null); setShowForm(false); setMsg(null); setErrors({}); };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    const errs = {};
+    errs.rut = validateRut(form.rut);
+    errs.nombres = validateNotEmpty(form.nombres, 'Nombres');
+    errs.apellidos = validateNotEmpty(form.apellidos, 'Apellidos');
+    errs.correo = validateEmail(form.correo);
+    const filtered = Object.fromEntries(Object.entries(errs).filter(([,v]) => v));
+    setErrors(filtered);
+    if (Object.keys(filtered).length > 0) return;
     const payload = {
       rut: form.rut,
       nombres: form.nombres,

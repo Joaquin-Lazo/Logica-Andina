@@ -5,6 +5,8 @@ import Dashboard from "./components/Dashboard";
 import ManageRoutes from "./components/ManageRoutes";
 import ManageTrucks from "./components/ManageTrucks";
 import ManageUsers from "./components/ManageUsers";
+import ManageClients from "./components/ManageClients";
+import ManageInvoices from "./components/ManageInvoices";
 import "./App.css";
 
 const RoleSelector = () => {
@@ -38,6 +40,16 @@ const AppNav = () => {
           Flota
         </NavLink>
       )}
+      {(role === ROLES.ADMIN || role === ROLES.DESPACHADOR) && (
+        <NavLink to="/clientes" className={({ isActive }) => isActive ? "nav-link active" : "nav-link"}>
+          Clientes
+        </NavLink>
+      )}
+      {(role === ROLES.ADMIN || role === ROLES.DESPACHADOR) && (
+        <NavLink to="/facturas" className={({ isActive }) => isActive ? "nav-link active" : "nav-link"}>
+          Facturas
+        </NavLink>
+      )}
       {role === ROLES.ADMIN && (
         <NavLink to="/usuarios" className={({ isActive }) => isActive ? "nav-link active" : "nav-link"}>
           Usuarios
@@ -66,6 +78,8 @@ const App = () => {
             <Route path="/" element={<Dashboard />} />
             <Route path="/rutas" element={<ManageRoutes />} />
             <Route path="/camiones" element={<ManageTrucks />} />
+            <Route path="/clientes" element={<ManageClients />} />
+            <Route path="/facturas" element={<ManageInvoices />} />
             <Route path="/usuarios" element={<ManageUsers />} />
           </Routes>
         </div>

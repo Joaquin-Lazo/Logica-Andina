@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback } from "react";
+import { validatePatente, validatePositiveNumber } from "../utils/validators";
 
 const BFF = "http://localhost:8082/api/dashboard";
 
@@ -11,6 +12,7 @@ const ManageTrucks = () => {
   const [editingId, setEditingId] = useState(null);
   const [showForm, setShowForm] = useState(false);
   const [msg, setMsg] = useState(null);
+  const [errors, setErrors] = useState({});
   const [deleteConfirmId, setDeleteConfirmId] = useState(null);
 
   const fetchTrucks = useCallback(() => {
@@ -24,10 +26,16 @@ const ManageTrucks = () => {
 
   const handleChange = (e) => setForm({ ...form, [e.target.name]: e.target.value });
 
-  const resetForm = () => { setForm(EMPTY_FORM); setEditingId(null); setShowForm(false); setMsg(null); };
+  const resetForm = () => { setForm(EMPTY_FORM); setEditingId(null); setShowForm(false); setMsg(null); setErrors({}); };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    const errs = {};
+    errs.patente = validatePatente(form.patente);
+    errs.capacidadMaxToneladas = validatePositiveNumber(form.capacidadMaxToneladas, 'Capacidad');
+    const filtered = Object.fromEntries(Object.entries(errs).filter(([,v]) => v));
+    setErrors(filtered);
+    if (Object.keys(filtered).length > 0) return;
     const payload = {
       patente: form.patente,
       marcaModelo: form.marcaModelo,
@@ -96,7 +104,10 @@ const ManageTrucks = () => {
           <h3>{editingId ? "Editar Camion #" + editingId : "Nuevo Camion"}</h3>
           <form onSubmit={handleSubmit} className="crud-form">
             <div className="form-row">
-              <input name="patente" value={form.patente} onChange={handleChange} placeholder="Patente (ej: AB-CD-12)" required />
+              <div className="field-group">
+                <input name="patente" value={form.patente} onChange={handleChange} placeholder="Patente (ej: AB-CD-12)" required />
+                {errors.patente && <span className="field-error">{errors.patente}</span>}
+              </div>
               <input name="marcaModelo" value={form.marcaModelo} onChange={handleChange} placeholder="Marca y Modelo" required />
             </div>
             <div className="form-row">
