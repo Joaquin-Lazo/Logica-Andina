@@ -305,6 +305,27 @@ public class DashboardController {
         return proxyToRoute("/api/invoices/" + id, HttpMethod.DELETE, null);
     }
 
+    // --- Cargamentos (Cargo) ---
+    @GetMapping("/proxy/cargo")
+    public ResponseEntity<Object> getCargo() {
+        return proxyToRoute("/api/cargo", HttpMethod.GET, null);
+    }
+
+    @PostMapping("/proxy/cargo")
+    public ResponseEntity<Object> createCargo(@RequestBody Object payload) {
+        return proxyToRoute("/api/cargo", HttpMethod.POST, payload);
+    }
+
+    @PutMapping("/proxy/cargo/{id}")
+    public ResponseEntity<Object> updateCargo(@PathVariable Integer id, @RequestBody Object payload) {
+        return proxyToRoute("/api/cargo/" + id, HttpMethod.PUT, payload);
+    }
+
+    @DeleteMapping("/proxy/cargo/{id}")
+    public ResponseEntity<Object> deleteCargo(@PathVariable Integer id) {
+        return proxyToRoute("/api/cargo/" + id, HttpMethod.DELETE, null);
+    }
+
     // --- Telemetria ---
     private ResponseEntity<Object> proxyToTelemetry(String path, HttpMethod method, Object body) {
         return proxyToService(telemetryServiceUrl + path, method, body, authService::getTelemetryServiceToken);
