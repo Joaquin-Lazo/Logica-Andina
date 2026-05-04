@@ -20,10 +20,10 @@ public class TelemetryLog {
     @Column(name = "id_ruta_ref", nullable = false)
     private Integer idRutaRef;
 
-    @Column(name = "latitud", nullable = false, precision = 10, scale = 8)
+    @Column(name = "latitud", nullable = false)
     private Double latitud;
 
-    @Column(name = "longitud", nullable = false, precision = 11, scale = 8)
+    @Column(name = "longitud", nullable = false)
     private Double longitud;
 
     @Column(name = "velocidad_kmh", nullable = false)
