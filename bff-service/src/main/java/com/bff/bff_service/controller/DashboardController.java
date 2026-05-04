@@ -137,8 +137,12 @@ public class DashboardController {
         double distKm = route.getDistanciaEstimadaKm() != null
                 ? route.getDistanciaEstimadaKm() : 500.0;
 
+        // VELOCIDAD ASIGNADA (Determinista usando el ID, entre 60 y 100 km/h)
+        int seed = route.getIdRuta() != null ? route.getIdRuta() : 1;
+        double baseSpeed = 60.0 + (seed * 17 % 40);
+
         // Segundos reales necesarios para completar el viaje simulado
-        double totalSimHours = distKm / AVG_SPEED_KMH;
+        double totalSimHours = distKm / baseSpeed;
         double totalRealSeconds = (totalSimHours * 3600.0) / TIME_MULTIPLIER;
 
         long elapsedRealSeconds = Duration.between(departure, now).getSeconds();
@@ -156,9 +160,9 @@ public class DashboardController {
             route.setVelocidadSimulada(0.0);
             autoCompleteRouteInDb(route);
         } else {
-            // Velocidad simulada: promedio +/- variacion aleatoria
-            double jitter = (Math.random() * 20.0) - 10.0;
-            route.setVelocidadSimulada(Math.round((AVG_SPEED_KMH + jitter) * 10.0) / 10.0);
+            // Velocidad simulada: la velocidad del camion +/- variacion aleatoria (para que se vea vivo)
+            double jitter = (Math.random() * 6.0) - 3.0;
+            route.setVelocidadSimulada(Math.round((baseSpeed + jitter) * 10.0) / 10.0);
         }
     }
 
