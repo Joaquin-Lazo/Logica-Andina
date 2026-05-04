@@ -4,19 +4,18 @@ const BFF = "http://localhost:8082/api/dashboard";
 
 const ManageInvoices = () => {
   const [invoices, setInvoices] = useState([]);
-  const [clients, setClients] = useState([]);
 
   const fetchData = useCallback(() => {
-    fetch(`${BFF}/proxy/invoices`).then(r => r.json()).then(d => setInvoices(Array.isArray(d) ? d : [])).catch(() => {});
-    fetch(`${BFF}/proxy/clients`).then(r => r.json()).then(d => setClients(Array.isArray(d) ? d : [])).catch(() => {});
+    fetch(`${BFF}/proxy/invoices`)
+      .then(r => r.json())
+      .then(d => {
+        console.log("Invoices response:", d);
+        setInvoices(Array.isArray(d) ? d : []);
+      })
+      .catch(() => {});
   }, []);
 
   useEffect(() => { fetchData(); }, [fetchData]);
-
-  const clientName = (id) => {
-    const c = clients.find(cl => cl.idCliente === id);
-    return c ? c.razonSocial : `#${id}`;
-  };
 
   const formatMoney = (n) => n != null ? `$${Number(n).toLocaleString("es-CL")}` : "—";
 
@@ -42,8 +41,8 @@ const ManageInvoices = () => {
               {invoices.length === 0 ? <tr><td colSpan="7" className="empty-cell">Sin facturas</td></tr> : invoices.map(f => (
                 <tr key={f.idFactura}>
                   <td className="cell-id">{f.idFactura}</td>
-                  <td className="cell-id">#{f.ruta?.idRuta || f.idRuta}</td>
-                  <td>{f.cliente ? f.cliente.razonSocial : clientName(f.idCliente)}</td>
+                  <td className="cell-id">#{f.route?.idRuta || "—"}</td>
+                  <td>{f.client?.razonSocial || "—"}</td>
                   <td className="cell-number">{formatMoney(f.montoNeto)}</td>
                   <td className="cell-number">{formatMoney(f.impuestos)}</td>
                   <td className="cell-number" style={{fontWeight: 600}}>{formatMoney(f.totalPagar)}</td>

@@ -30,6 +30,9 @@ public class DashboardController {
     @Value("${ROUTE_SERVICE_URL:http://localhost:8081}")
     private String routeServiceUrl;
 
+    @Value("${TELEMETRY_SERVICE_URL:http://localhost:8083}")
+    private String telemetryServiceUrl;
+
     // Simulacion: 1 minuto real = 1 hora simulada (velocidad 60x)
     private static final double TIME_MULTIPLIER = 60.0;
     private static final double AVG_SPEED_KMH = 80.0;
@@ -300,5 +303,30 @@ public class DashboardController {
     @DeleteMapping("/proxy/invoices/{id}")
     public ResponseEntity<Object> deleteInvoice(@PathVariable Integer id) {
         return proxyToRoute("/api/invoices/" + id, HttpMethod.DELETE, null);
+    }
+
+    // --- Telemetria ---
+    private ResponseEntity<Object> proxyToTelemetry(String path, HttpMethod method, Object body) {
+        return proxyToService(telemetryServiceUrl + path, method, body, authService::getTelemetryServiceToken);
+    }
+
+    @GetMapping("/proxy/telemetry")
+    public ResponseEntity<Object> getTelemetry() {
+        return proxyToTelemetry("/api/telemetry", HttpMethod.GET, null);
+    }
+
+    @GetMapping("/proxy/telemetry/route/{routeId}")
+    public ResponseEntity<Object> getTelemetryByRoute(@PathVariable Integer routeId) {
+        return proxyToTelemetry("/api/telemetry/route/" + routeId, HttpMethod.GET, null);
+    }
+
+    @GetMapping("/proxy/alerts")
+    public ResponseEntity<Object> getAlerts() {
+        return proxyToTelemetry("/api/alerts", HttpMethod.GET, null);
+    }
+
+    @GetMapping("/proxy/alerts/active")
+    public ResponseEntity<Object> getActiveAlerts() {
+        return proxyToTelemetry("/api/alerts/active", HttpMethod.GET, null);
     }
 }

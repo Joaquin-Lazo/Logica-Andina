@@ -25,6 +25,9 @@ public class AuthService {
     @Value("${ROUTE_SERVICE_URL:http://localhost:8081}")
     private String routeServiceUrl;
 
+    @Value("${TELEMETRY_SERVICE_URL:http://localhost:8083}")
+    private String telemetryServiceUrl;
+
     @Autowired
     public AuthService(RestTemplate restTemplate) {
         this.restTemplate = restTemplate;
@@ -46,6 +49,16 @@ public class AuthService {
         Map<String, String> credentials = new HashMap<>();
         credentials.put("username", "route"); 
         credentials.put("password", "route123");
+
+        return executeAuthRequest(authUrl, credentials);
+    }
+
+    public String getTelemetryServiceToken() {
+        String authUrl = telemetryServiceUrl + "/api/auth/login";
+
+        Map<String, String> credentials = new HashMap<>();
+        credentials.put("username", "telemetry");
+        credentials.put("password", "telemetry123");
 
         return executeAuthRequest(authUrl, credentials);
     }

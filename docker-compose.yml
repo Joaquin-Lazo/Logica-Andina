@@ -11,6 +11,11 @@ services:
       - ./init.sql:/docker-entrypoint-initdb.d/init.sql
     ports:
       - "3307:3306"
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-prootPassword"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
 
   user-service:
     build: ./user-service
@@ -19,7 +24,8 @@ services:
     ports:
       - "8080:8080"
     depends_on:
-      - db
+      db:
+        condition: service_healthy
     environment:
       - SPRING_DATASOURCE_URL=jdbc:mysql://db:3306/auth_db?useSSL=false&allowPublicKeyRetrieval=true&createDatabaseIfNotExist=true&characterEncoding=UTF-8&useUnicode=true
       - SPRING_DATASOURCE_USERNAME=root
@@ -32,11 +38,29 @@ services:
     ports:
       - "8081:8081"
     depends_on:
-      - db
+      db:
+        condition: service_healthy
     environment:
       - SPRING_DATASOURCE_URL=jdbc:mysql://db:3306/routes_db?useSSL=false&allowPublicKeyRetrieval=true&createDatabaseIfNotExist=true&characterEncoding=UTF-8&useUnicode=true
       - SPRING_DATASOURCE_USERNAME=root
       - SPRING_DATASOURCE_PASSWORD=rootPassword
+
+  telemetry-service:
+    build: ./telemetry-service
+    container_name: telemetry_service_app
+    restart: on-failure
+    ports:
+      - "8083:8083"
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:mysql://db:3306/telemetry_db?useSSL=false&allowPublicKeyRetrieval=true&createDatabaseIfNotExist=true&characterEncoding=UTF-8&useUnicode=true
+      - SPRING_DATASOURCE_USERNAME=root
+      - SPRING_DATASOURCE_PASSWORD=rootPassword
+      - ROUTE_SERVICE_URL=http://route-service:8081
+      - ROUTE_SERVICE_USER=route
+      - ROUTE_SERVICE_PASS=route123
 
   bff-service:
     build: ./bff-service
@@ -47,9 +71,11 @@ services:
     depends_on:
       - user-service
       - route-service
+      - telemetry-service
     environment:
       - USER_SERVICE_URL=http://user-service:8080
       - ROUTE_SERVICE_URL=http://route-service:8081
+      - TELEMETRY_SERVICE_URL=http://telemetry-service:8083
 
   app:
     build: ./frontend-service
