@@ -145,15 +145,21 @@ public class DashboardController {
         double progress = totalRealSeconds > 0
                 ? (double) elapsedRealSeconds / totalRealSeconds : 0.0;
 
-        // Limitar entre 0% y 99% (aun en transito, no completada)
-        progress = Math.max(0.0, Math.min(0.99, progress));
+        // Limitar entre 0% y 100%
+        progress = Math.max(0.0, Math.min(1.0, progress));
 
         route.setProgressPercent(Math.round(progress * 1000.0) / 10.0);
         route.setKmRecorridos(Math.round(distKm * progress * 10.0) / 10.0);
 
-        // Velocidad simulada: promedio +/- variacion aleatoria
-        double jitter = (Math.random() * 20.0) - 10.0;
-        route.setVelocidadSimulada(Math.round((AVG_SPEED_KMH + jitter) * 10.0) / 10.0);
+        if (progress >= 1.0) {
+            route.setEstado("Completada");
+            route.setVelocidadSimulada(0.0);
+            autoCompleteRouteInDb(route);
+        } else {
+            // Velocidad simulada: promedio +/- variacion aleatoria
+            double jitter = (Math.random() * 20.0) - 10.0;
+            route.setVelocidadSimulada(Math.round((AVG_SPEED_KMH + jitter) * 10.0) / 10.0);
+        }
     }
 
     // ===================== PROXY CRUD GENERICO =====================
@@ -328,5 +334,28 @@ public class DashboardController {
     @GetMapping("/proxy/alerts/active")
     public ResponseEntity<Object> getActiveAlerts() {
         return proxyToTelemetry("/api/alerts/active", HttpMethod.GET, null);
+    }
+
+    // ===================== AUTO COMPLETE LOGIC =====================
+    private void autoCompleteRouteInDb(RouteSummaryDTO route) {
+        try {
+            String token = authService.getRouteServiceToken();
+            if (token == null) return;
+            
+            HttpHeaders headers = new HttpHeaders();
+            headers.set("Authorization", "Bearer " + token);
+            headers.setContentType(MediaType.APPLICATION_JSON);
+            
+            HttpEntity<RouteSummaryDTO> request = new HttpEntity<>(route, headers);
+            restTemplate.exchange(
+                routeServiceUrl + "/api/routes/" + route.getIdRuta(),
+                HttpMethod.PUT,
+                request,
+                Object.class
+            );
+            System.out.println("Ruta " + route.getIdRuta() + " auto-completada en base de datos.");
+        } catch (Exception e) {
+            System.err.println("Error auto-completando ruta en DB: " + e.getMessage());
+        }
     }
 }
