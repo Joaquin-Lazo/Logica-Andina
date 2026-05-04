@@ -2,6 +2,7 @@ import React, { useState, useEffect, useCallback } from "react";
 
 const BFF = "http://localhost:8082/api/dashboard";
 const REFRESH_MS = 10000;
+const PAGE_SIZES = [25, 50, 100];
 
 const Telemetry = () => {
   const [logs, setLogs] = useState([]);
@@ -9,6 +10,8 @@ const Telemetry = () => {
   const [selectedRoute, setSelectedRoute] = useState("");
   const [isLive, setIsLive] = useState(true);
   const [lastUpdated, setLastUpdated] = useState(null);
+  const [page, setPage] = useState(1);
+  const [pageSize, setPageSize] = useState(25);
 
   const fetchData = useCallback(() => {
     const logsUrl = selectedRoute
@@ -71,7 +74,7 @@ const Telemetry = () => {
               </thead>
               <tbody>
                 {logs.length === 0 ? <tr><td colSpan="6" className="empty-cell">Sin datos de telemetria</td></tr> :
-                  logs.slice(0, 50).map(l => (
+                  logs.slice((page - 1) * pageSize, page * pageSize).map(l => (
                     <tr key={l.idLog} className={l.velocidadKmh > 90 ? "row-live" : ""}>
                       <td className="cell-id">{l.idLog}</td>
                       <td className="cell-id">#{l.idRutaRef}</td>
@@ -88,6 +91,16 @@ const Telemetry = () => {
               </tbody>
             </table>
           </div>
+          {logs.length > pageSize && (
+            <div className="pagination-bar">
+              <button className="btn-sm btn-edit" disabled={page <= 1} onClick={() => setPage(p => p - 1)}>Anterior</button>
+              <span className="page-info">Pagina {page} de {Math.ceil(logs.length / pageSize)}</span>
+              <button className="btn-sm btn-edit" disabled={page >= Math.ceil(logs.length / pageSize)} onClick={() => setPage(p => p + 1)}>Siguiente</button>
+              <select className="conductor-select" value={pageSize} onChange={(e) => { setPageSize(Number(e.target.value)); setPage(1); }}>
+                {PAGE_SIZES.map(s => <option key={s} value={s}>{s} por pagina</option>)}
+              </select>
+            </div>
+          )}
         </section>
 
         <section className="data-section full-width">
