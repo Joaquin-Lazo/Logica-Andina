@@ -9,21 +9,27 @@ import ManageClients from "./components/ManageClients";
 import ManageInvoices from "./components/ManageInvoices";
 import ManageCargo from "./components/ManageCargo";
 import Telemetry from "./components/Telemetry";
+import Login from "./components/Login";
 import "./App.css";
 
-const RoleSelector = () => {
-  const { role, setRole } = useRole();
+const UserBar = () => {
+  const { user, logout } = useRole();
   return (
-    <div className="role-selector">
-      <label>Rol activo:</label>
-      <select value={role} onChange={(e) => setRole(e.target.value)}>
-        <option value={ROLES.ADMIN}>Administrador</option>
-        <option value={ROLES.DESPACHADOR}>Despachador</option>
-        <option value={ROLES.CONDUCTOR}>Conductor</option>
-      </select>
+    <div className="role-selector" style={{ padding: '6px 12px', background: 'rgba(0,0,0,0.2)' }}>
+      <span style={{ fontSize: '0.9rem', fontWeight: 500, marginRight: '10px' }}>
+        Hola, {user.nombres}
+      </span>
+      <button
+        onClick={logout}
+        className="btn-sm btn-delete"
+        style={{ padding: '6px 12px', letterSpacing: '0.5px' }}
+      >
+        Cerrar Sesión
+      </button>
     </div>
   );
 };
+
 
 const AppNav = () => {
   const { role } = useRole();
@@ -71,33 +77,45 @@ const AppNav = () => {
   );
 };
 
+const AppContent = () => {
+  const { user } = useRole();
+
+  if (!user) {
+    return <Login />
+  }
+
+  return (
+    <Router>
+      <div className="App">
+        <header className="App-header">
+          <div className="header-top">
+            <div>
+              <h1>Logistica Andina - Panel de Control</h1>
+              <p>Centro de integracion de microservicios</p>
+            </div>
+            <UserBar />
+          </div>
+        </header>
+        <AppNav />
+        <Routes>
+          <Route path="/" element={<Dashboard />} />
+          <Route path="/rutas" element={<ManageRoutes />} />
+          <Route path="/camiones" element={<ManageTrucks />} />
+          <Route path="/clientes" element={<ManageClients />} />
+          <Route path="/facturas" element={<ManageInvoices />} />
+          <Route path="/carga" element={<ManageCargo />} />
+          <Route path="/telemetria" element={<Telemetry />} />
+          <Route path="/usuarios" element={<ManageUsers />} />
+        </Routes>
+      </div>
+    </Router>
+  );
+};
+
 const App = () => {
   return (
     <RoleProvider>
-      <Router>
-        <div className="App">
-          <header className="App-header">
-            <div className="header-top">
-              <div>
-                <h1>Logistica Andina - Panel de Control</h1>
-                <p>Centro de integracion de microservicios</p>
-              </div>
-              <RoleSelector />
-            </div>
-          </header>
-          <AppNav />
-          <Routes>
-            <Route path="/" element={<Dashboard />} />
-            <Route path="/rutas" element={<ManageRoutes />} />
-            <Route path="/camiones" element={<ManageTrucks />} />
-            <Route path="/clientes" element={<ManageClients />} />
-            <Route path="/facturas" element={<ManageInvoices />} />
-            <Route path="/carga" element={<ManageCargo />} />
-            <Route path="/telemetria" element={<Telemetry />} />
-            <Route path="/usuarios" element={<ManageUsers />} />
-          </Routes>
-        </div>
-      </Router>
+      <AppContent />
     </RoleProvider>
   );
 };

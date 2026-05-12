@@ -4,13 +4,12 @@ import { useRole, ROLES } from "../context/RoleContext";
 const REFRESH_INTERVAL_MS = 5000;
 
 const Dashboard = () => {
-  const { role } = useRole();
+  const { role, user } = useRole();
   const [dashboardData, setDashboardData] = useState({ users: [], routes: [] });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [lastUpdated, setLastUpdated] = useState(null);
   const [isLive, setIsLive] = useState(true);
-  const [conductorId, setConductorId] = useState("");
 
   const fetchDashboard = useCallback(() => {
     fetch("http://localhost:8082/api/dashboard")
@@ -50,15 +49,10 @@ const Dashboard = () => {
     } catch { return "—"; }
   };
 
-  // Filtrar rutas segun rol
-  const filteredRoutes = role === ROLES.CONDUCTOR && conductorId
-    ? dashboardData.routes.filter(r => String(r.idConductorRef) === conductorId)
+  // Filtrar rutas segun login
+  const filteredRoutes = role === ROLES.CONDUCTOR
+    ? dashboardData.routes.filter(r => r.idConductorRef === user.idUsuario)
     : dashboardData.routes;
-
-  // Lista de conductores para el selector
-  const conductores = dashboardData.users.filter(u =>
-    u.rol?.nombreRol?.includes("CONDUCTOR")
-  );
 
   return (
     <main className="dashboard-container">
@@ -71,17 +65,6 @@ const Dashboard = () => {
           </button>
           {lastUpdated && (
             <span className="last-updated">Actualizado: {lastUpdated.toLocaleTimeString("es-CL")}</span>
-          )}
-          {role === ROLES.CONDUCTOR && (
-            <select className="conductor-select" value={conductorId}
-              onChange={(e) => setConductorId(e.target.value)}>
-              <option value="">-- Seleccionar conductor --</option>
-              {conductores.map(c => (
-                <option key={c.idUsuario} value={c.idUsuario}>
-                  {c.nombres} {c.apellidos} (ID: {c.idUsuario})
-                </option>
-              ))}
-            </select>
           )}
         </div>
         <button className="refresh-btn" onClick={fetchDashboard} title="Refrescar ahora">↻</button>
@@ -176,10 +159,9 @@ const Dashboard = () => {
                         <td className="cell-email">{user.correo || "—"}</td>
                         <td className="cell-mono">{user.telefono || "—"}</td>
                         <td>
-                          <span className={`role-badge ${
-                            user.rol?.nombreRol?.includes("ADMINISTRADOR") ? "admin" :
+                          <span className={`role-badge ${user.rol?.nombreRol?.includes("ADMINISTRADOR") ? "admin" :
                             user.rol?.nombreRol?.includes("DESPACHADOR") ? "despachador" : "conductor"
-                          }`}>{user.rol?.nombreRol?.replace("ROLE_", "") || "—"}</span>
+                            }`}>{user.rol?.nombreRol?.replace("ROLE_", "") || "—"}</span>
                         </td>
                         <td>
                           <span className={`status-dot ${user.estadoActivo !== false ? "active" : "inactive"}`}>

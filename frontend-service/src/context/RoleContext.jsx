@@ -9,12 +9,27 @@ export const ROLES = {
 };
 
 export const RoleProvider = ({ children }) => {
-  const [role, setRole] = useState(ROLES.ADMIN);
+  const [user, setUser] = useState(() => {
+    const saved = localStorage.getItem("user");
+    return saved ? JSON.parse(saved) : null;
+  });
+
+  const login = (userData) => {
+    setUser(userData);
+    localStorage.setItem("user", JSON.stringify(userData));
+  };
+
+  const logout = () => {
+    setUser(null);
+    localStorage.removeItem("user");
+  };
+
+  const role = user ? user.rol : null;
+
   return (
-    <RoleContext.Provider value={{ role, setRole }}>
+    <RoleContext.Provider value={{ role, user, login, logout }}>
       {children}
     </RoleContext.Provider>
   );
-};
-
+}
 export const useRole = () => useContext(RoleContext);
