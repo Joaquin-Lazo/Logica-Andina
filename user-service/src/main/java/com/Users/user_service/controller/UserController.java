@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 import com.Users.user_service.model.User;
 import com.Users.user_service.repository.UserRepository;
@@ -24,6 +25,9 @@ public class UserController {
     
     @Autowired
     private UserRepository userRepository;
+
+    @Autowired
+    private PasswordEncoder passwordEncoder;
     
     @GetMapping
     public ResponseEntity<List<User>> getAllUsers() {
@@ -44,6 +48,7 @@ public class UserController {
     @PostMapping
     public ResponseEntity<User> createUser(@RequestBody User newUser) {
         try {
+            newUser.setPasswordHash(passwordEncoder.encode(newUser.getPasswordHash()));
             User savedUser = userRepository.save(newUser);
             return new ResponseEntity<>(savedUser, HttpStatus.CREATED);
         } catch (Exception e) {
@@ -63,9 +68,11 @@ public class UserController {
             userToUpdate.setApellidos(updatedUserData.getApellidos());
             userToUpdate.setCorreo(updatedUserData.getCorreo());
             userToUpdate.setTelefono(updatedUserData.getTelefono());
-            userToUpdate.setPasswordHash(updatedUserData.getPasswordHash());
             userToUpdate.setEstadoActivo(updatedUserData.getEstadoActivo());
-            
+            if (updatedUserData.getPasswordHash() != null &&
+            !updatedUserData.getPasswordHash().isEmpty()){
+                userToUpdate.setPasswordHash(passwordEncoder.encode(updatedUserData.getPasswordHash()));
+            }
             return new ResponseEntity<>(userRepository.save(userToUpdate), HttpStatus.OK);
         }
         return new ResponseEntity<>(HttpStatus.NOT_FOUND);

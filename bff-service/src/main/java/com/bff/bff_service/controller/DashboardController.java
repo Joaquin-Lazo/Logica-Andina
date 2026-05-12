@@ -35,8 +35,7 @@ public class DashboardController {
 
     // Simulacion: 1 minuto real = 1 hora simulada (velocidad 60x)
     private static final double TIME_MULTIPLIER = 60.0;
-    private static final double AVG_SPEED_KMH = 80.0;
-
+    
     @Autowired
     public DashboardController(RestTemplate restTemplate, AuthService authService) {
         this.restTemplate = restTemplate;
@@ -250,6 +249,11 @@ public class DashboardController {
     @DeleteMapping("/proxy/users/{id}")
     public ResponseEntity<Object> deleteUser(@PathVariable Integer id) {
         return proxyToUser("/api/users/" + id, HttpMethod.DELETE, null);
+    }
+
+    @PostMapping("/proxy/user-login")
+    public ResponseEntity<Object> userLogin(@RequestBody Object payload){
+        return proxyToUser("/api/auth/user-login", HttpMethod.POST, payload);
     }
 
     // --- Cargamentos ---
