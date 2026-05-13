@@ -15,20 +15,13 @@ import "./App.css";
 const UserBar = () => {
   const { user, logout } = useRole();
   return (
-    <div className="role-selector" style={{ padding: '6px 12px', background: 'rgba(0,0,0,0.2)' }}>
-      <span style={{ fontSize: '0.9rem', fontWeight: 500, marginRight: '10px' }}>
-        Hola, {user.nombres}
-      </span>
-      <button
-        onClick={logout}
-        className="btn-sm btn-delete"
-        style={{ padding: '6px 12px', letterSpacing: '0.5px' }}
-      >
-        Cerrar Sesión
-      </button>
+    <div className="role-selector">
+      <span>{user.nombres} {user.apellidos}</span>
+      <button onClick={logout} className="btn-sm btn-delete">Cerrar Sesión</button>
     </div>
   );
 };
+
 
 
 const AppNav = () => {

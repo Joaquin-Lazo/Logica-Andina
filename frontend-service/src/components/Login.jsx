@@ -32,15 +32,13 @@ const Login = () => {
   };
 
   return (
-    <div className="dashboard-container" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '80vh' }}>
-      <div className="form-card" style={{ width: '100%', maxWidth: '400px' }}>
-        <h3 style={{ textAlign: 'center', fontSize: '1.5rem', marginBottom: '24px' }}>Logística Andina</h3>
-
-        {error && <div className="status-message error" style={{ padding: '10px', marginTop: '0', marginBottom: '15px' }}>{error}</div>}
-
+    <div className="dashboard-container login-wrapper">
+      <div className="form-card login-card">
+        <h3>Logística Andina</h3>
+        {error && <div className="status-message error">{error}</div>}
         <form onSubmit={handleSubmit} className="crud-form">
           <div className="field-group">
-            <label style={{ fontWeight: 600, fontSize: '0.9rem', color: '#555', marginBottom: '4px' }}>Correo Electrónico:</label>
+            <label>Correo Electrónico:</label>
             <input
               type="email"
               value={correo}
@@ -49,8 +47,8 @@ const Login = () => {
               required
             />
           </div>
-          <div className="field-group" style={{ marginBottom: '10px' }}>
-            <label style={{ fontWeight: 600, fontSize: '0.9rem', color: '#555', marginBottom: '4px' }}>Contraseña:</label>
+          <div className="field-group">
+            <label>Contraseña:</label>
             <input
               type="password"
               value={password}
@@ -59,7 +57,7 @@ const Login = () => {
               required
             />
           </div>
-          <button type="submit" className="btn-primary" style={{ width: '100%', padding: '12px' }}>
+          <button type="submit" className="btn-primary">
             Iniciar Sesión
           </button>
         </form>
