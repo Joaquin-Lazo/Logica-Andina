@@ -8,10 +8,7 @@ const ManageInvoices = () => {
   const fetchData = useCallback(() => {
     fetch(`${BFF}/proxy/invoices`)
       .then(r => r.json())
-      .then(d => {
-        console.log("Invoices response:", d);
-        setInvoices(Array.isArray(d) ? d : []);
-      })
+      .then(d => setInvoices(Array.isArray(d) ? d : []))
       .catch(() => {});
   }, []);
 
@@ -45,7 +42,7 @@ const ManageInvoices = () => {
                   <td>{f.client?.razonSocial || "—"}</td>
                   <td className="cell-number">{formatMoney(f.montoNeto)}</td>
                   <td className="cell-number">{formatMoney(f.impuestos)}</td>
-                  <td className="cell-number" style={{fontWeight: 600}}>{formatMoney(f.totalPagar)}</td>
+                  <td className="cell-number cell-bold">{formatMoney(f.totalPagar)}</td>
                   <td><span className={`status-badge ${getPayClass(f.estadoPago)}`}>{f.estadoPago}</span></td>
                 </tr>
               ))}

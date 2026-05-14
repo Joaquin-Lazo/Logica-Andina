@@ -718,38 +718,48 @@
   font-weight: 500;
 }
 
+/* ===== Utility ===== */
+
+.cell-bold { font-weight: 600; }
+.cell-comment { max-width: 300px; white-space: normal; }
+.badge-inline { margin-left: 6px; font-size: 0.7rem; }
+
 /* ===== Responsive ===== */
 
 @media (max-width: 900px) {
-  .header-top {
-    flex-direction: column;
-    gap: 12px;
-    text-align: center;
-  }
+  .header-top { flex-direction: column; gap: 12px; text-align: center; }
+  .header-top h1 { text-align: center; font-size: 1.3rem; }
+  .header-top p { text-align: center; font-size: 0.85rem; }
+  .App-header { padding: 16px 15px; }
+  .main-nav { flex-wrap: wrap; justify-content: center; gap: 0; }
+  .nav-link { padding: 10px 14px; font-size: 0.8rem; }
+  .form-row { flex-direction: column; }
+  .data-table { font-size: 0.8rem; }
+  .data-table th, .data-table td { padding: 8px 10px; white-space: normal; word-break: break-word; }
+  .cell-truck { min-width: 80px; }
+  .progress-wrapper { min-width: 100px; }
+  .live-bar { flex-direction: column; gap: 10px; align-items: stretch; }
+  .live-bar-left { flex-wrap: wrap; justify-content: center; }
+  .dashboard-container { padding: 12px 10px 30px; }
+  .data-section { padding: 16px 12px; }
+  .confirm-panel { flex-direction: column; gap: 10px; text-align: center; }
+  .page-header { flex-direction: column; gap: 10px; text-align: center; }
+  .pagination-bar { flex-wrap: wrap; justify-content: center; }
+  .role-selector { flex-direction: column; gap: 6px; text-align: center; }
+  .login-card { margin: 0 16px; }
+}
 
-  .header-top h1 {
-    text-align: center;
-    font-size: 1.5rem;
-  }
-
-  .header-top p {
-    text-align: center;
-  }
-
-  .main-nav {
-    flex-wrap: wrap;
-  }
-
-  .form-row {
-    flex-direction: column;
-  }
-
-  .data-table {
-    font-size: 0.82rem;
-  }
-
-  .data-table th,
-  .data-table td {
-    padding: 8px 10px;
-  }
+@media (max-width: 480px) {
+  .header-top h1 { font-size: 1rem; }
+  .nav-link { padding: 8px 10px; font-size: 0.72rem; }
+  .cell-location { max-width: 100px; }
+  .btn-primary { width: 100%; }
+  .cell-actions { flex-direction: column; }
+  .form-card { padding: 16px; }
+  .cell-comment { max-width: 180px; }
+  .data-table th, .data-table td { padding: 6px 6px; font-size: 0.75rem; }
+  .cell-date, .cell-email, .cell-mono { font-size: 0.72rem; }
+  .status-badge { font-size: 0.68rem; padding: 3px 6px; }
+  .progress-wrapper { min-width: 80px; }
+  .km-detail { display: none; }
 }

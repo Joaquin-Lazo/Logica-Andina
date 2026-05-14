@@ -8,11 +8,8 @@ const ManageCargo = () => {
   const fetchData = useCallback(() => {
     fetch(`${BFF}/proxy/cargo`)
       .then(r => r.json())
-      .then(d => {
-        console.log("Cargo response:", d);
-        setCargos(Array.isArray(d) ? d : []);
-      })
-      .catch((err) => console.error("Cargo fetch error:", err));
+      .then(d => setCargos(Array.isArray(d) ? d : []))
+      .catch(() => {});
   }, []);
 
   useEffect(() => { fetchData(); }, [fetchData]);

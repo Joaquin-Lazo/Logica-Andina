@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback, useRef } from "react";
 import { validateRut, validateEmail, validateNotEmpty } from "../utils/validators";
 
 const BFF = "http://localhost:8082/api/dashboard";
@@ -13,14 +13,13 @@ const ManageClients = () => {
   const [msg, setMsg] = useState(null);
   const [errors, setErrors] = useState({});
   const [deleteConfirmId, setDeleteConfirmId] = useState(null);
+  const formRef = useRef(null);
+  const confirmRef = useRef(null);
 
   const fetchClients = useCallback(() => {
     fetch(`${BFF}/proxy/clients`)
       .then(r => r.json())
-      .then(data => {
-        console.log("Clients response:", data);
-        setClients(Array.isArray(data) ? data : []);
-      })
+      .then(data => setClients(Array.isArray(data) ? data : []))
       .catch((err) => console.error("Clients fetch error:", err));
   }, []);
 
@@ -55,7 +54,9 @@ const ManageClients = () => {
 
   const handleEdit = (c) => {
     setForm({ rutEmpresa: c.rutEmpresa || "", razonSocial: c.razonSocial || "", direccionFacturacion: c.direccionFacturacion || "", correoContacto: c.correoContacto || "" });
-    setEditingId(c.idCliente); setShowForm(true);
+    setEditingId(c.idCliente);
+    setShowForm(true);
+    setTimeout(() => formRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 50);
   };
 
   const confirmDelete = async () => {
@@ -72,9 +73,9 @@ const ManageClients = () => {
           {showForm ? "Cancelar" : "+ Nuevo Cliente"}
         </button>
       </div>
-      {msg && <div className="status-message loading" style={{marginBottom: 16}}>{msg}</div>}
+      {msg && <div className="status-message loading">{msg}</div>}
       {deleteConfirmId && (
-        <div className="confirm-panel">
+        <div className="confirm-panel" ref={confirmRef}>
           <p>Confirmar eliminacion de cliente #{deleteConfirmId}?</p>
           <div className="confirm-actions">
             <button className="btn-sm btn-delete" onClick={confirmDelete}>Eliminar</button>
@@ -83,7 +84,7 @@ const ManageClients = () => {
         </div>
       )}
       {showForm && (
-        <div className="form-card">
+        <div className="form-card" ref={formRef}>
           <h3>{editingId ? "Editar Cliente #" + editingId : "Nuevo Cliente"}</h3>
           <form onSubmit={handleSubmit} className="crud-form">
             <div className="form-row">
@@ -124,7 +125,7 @@ const ManageClients = () => {
                   <td className="cell-email">{c.correoContacto}</td>
                   <td className="cell-actions">
                     <button className="btn-sm btn-edit" onClick={() => handleEdit(c)}>Editar</button>
-                    <button className="btn-sm btn-delete" onClick={() => setDeleteConfirmId(c.idCliente)}>Eliminar</button>
+                    <button className="btn-sm btn-delete" onClick={() => { setDeleteConfirmId(c.idCliente); setTimeout(() => confirmRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 50); }}>Eliminar</button>
                   </td>
                 </tr>
               ))}

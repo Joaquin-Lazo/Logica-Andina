@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback, useRef } from "react";
 import { validateRut, validateEmail, validateNotEmpty } from "../utils/validators";
 
 const BFF = "http://localhost:8082/api/dashboard";
@@ -17,6 +17,8 @@ const ManageUsers = () => {
   const [msg, setMsg] = useState(null);
   const [errors, setErrors] = useState({});
   const [deleteConfirmId, setDeleteConfirmId] = useState(null);
+  const formRef = useRef(null);
+  const confirmRef = useRef(null);
 
   const fetchUsers = useCallback(() => {
     fetch(BFF)
@@ -81,6 +83,7 @@ const ManageUsers = () => {
     });
     setEditingId(u.idUsuario);
     setShowForm(true);
+    setTimeout(() => formRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 50);
   };
 
   const confirmDelete = async () => {
@@ -109,10 +112,10 @@ const ManageUsers = () => {
         </button>
       </div>
 
-      {msg && <div className="status-message loading" style={{marginBottom: 16}}>{msg}</div>}
+      {msg && <div className="status-message loading">{msg}</div>}
 
       {deleteConfirmId && (
-        <div className="confirm-panel">
+        <div className="confirm-panel" ref={confirmRef}>
           <p>Confirmar eliminacion de usuario #{deleteConfirmId}?</p>
           <div className="confirm-actions">
             <button className="btn-sm btn-delete" onClick={confirmDelete}>Eliminar</button>
@@ -122,7 +125,7 @@ const ManageUsers = () => {
       )}
 
       {showForm && (
-        <div className="form-card">
+        <div className="form-card" ref={formRef}>
           <h3>{editingId ? "Editar Usuario #" + editingId : "Nuevo Usuario"}</h3>
           <form onSubmit={handleSubmit} className="crud-form">
             <div className="form-row">
@@ -179,7 +182,7 @@ const ManageUsers = () => {
                   </td>
                   <td className="cell-actions">
                     <button className="btn-sm btn-edit" onClick={() => handleEdit(u)}>Editar</button>
-                    <button className="btn-sm btn-delete" onClick={() => setDeleteConfirmId(u.idUsuario)}>Eliminar</button>
+                    <button className="btn-sm btn-delete" onClick={() => { setDeleteConfirmId(u.idUsuario); setTimeout(() => confirmRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 50); }}>Eliminar</button>
                   </td>
                 </tr>
               ))}

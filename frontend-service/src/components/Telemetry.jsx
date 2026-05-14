@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback, useRef } from "react";
 
 const BFF = "http://localhost:8082/api/dashboard";
 const REFRESH_MS = 10000;
@@ -12,6 +12,7 @@ const Telemetry = () => {
   const [lastUpdated, setLastUpdated] = useState(null);
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(25);
+  const paginationRef = useRef(null);
 
   const fetchData = useCallback(() => {
     const logsUrl = selectedRoute
@@ -82,7 +83,7 @@ const Telemetry = () => {
                       <td className="cell-mono">{l.longitud?.toFixed(6)}</td>
                       <td className="cell-number">
                         {l.velocidadKmh?.toFixed(1)} km/h
-                        {l.velocidadKmh > 90 && <span className="status-badge en-transito" style={{marginLeft: 6, fontSize: '0.7rem'}}>ALTA</span>}
+                        {l.velocidadKmh > 90 && <span className="status-badge en-transito badge-inline">ALTA</span>}
                       </td>
                       <td className="cell-date">{formatTime(l.timestampEvento)}</td>
                     </tr>
@@ -92,10 +93,10 @@ const Telemetry = () => {
             </table>
           </div>
           {logs.length > pageSize && (
-            <div className="pagination-bar">
-              <button className="btn-sm btn-edit" disabled={page <= 1} onClick={() => setPage(p => p - 1)}>Anterior</button>
+            <div className="pagination-bar" ref={paginationRef}>
+              <button className="btn-sm btn-edit" disabled={page <= 1} onClick={() => { setPage(p => p - 1); setTimeout(() => paginationRef.current?.scrollIntoView({ behavior: 'smooth', block: 'nearest' }), 50); }}>Anterior</button>
               <span className="page-info">Pagina {page} de {Math.ceil(logs.length / pageSize)}</span>
-              <button className="btn-sm btn-edit" disabled={page >= Math.ceil(logs.length / pageSize)} onClick={() => setPage(p => p + 1)}>Siguiente</button>
+              <button className="btn-sm btn-edit" disabled={page >= Math.ceil(logs.length / pageSize)} onClick={() => { setPage(p => p + 1); setTimeout(() => paginationRef.current?.scrollIntoView({ behavior: 'smooth', block: 'nearest' }), 50); }}>Siguiente</button>
               <select className="conductor-select" value={pageSize} onChange={(e) => { setPageSize(Number(e.target.value)); setPage(1); }}>
                 {PAGE_SIZES.map(s => <option key={s} value={s}>{s} por pagina</option>)}
               </select>
@@ -124,7 +125,7 @@ const Telemetry = () => {
                           {a.resuelta ? "Si" : "No"}
                         </span>
                       </td>
-                      <td style={{maxWidth: 300, whiteSpace: 'normal'}}>{a.comentariosDespachador || "—"}</td>
+                      <td className="cell-comment">{a.comentariosDespachador || "—"}</td>
                     </tr>
                   ))
                 }

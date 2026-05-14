@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback, useRef } from "react";
 import { validatePatente, validatePositiveNumber } from "../utils/validators";
 
 const BFF = "http://localhost:8082/api/dashboard";
@@ -14,6 +14,8 @@ const ManageTrucks = () => {
   const [msg, setMsg] = useState(null);
   const [errors, setErrors] = useState({});
   const [deleteConfirmId, setDeleteConfirmId] = useState(null);
+  const formRef = useRef(null);
+  const confirmRef = useRef(null);
 
   const fetchTrucks = useCallback(() => {
     fetch(`${BFF}/proxy/camiones`)
@@ -65,6 +67,7 @@ const ManageTrucks = () => {
     });
     setEditingId(t.idCamion);
     setShowForm(true);
+    setTimeout(() => formRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 50);
   };
 
   const confirmDelete = async () => {
@@ -87,10 +90,10 @@ const ManageTrucks = () => {
         </button>
       </div>
 
-      {msg && <div className="status-message loading" style={{marginBottom: 16}}>{msg}</div>}
+      {msg && <div className="status-message loading">{msg}</div>}
 
       {deleteConfirmId && (
-        <div className="confirm-panel">
+        <div className="confirm-panel" ref={confirmRef}>
           <p>Confirmar eliminacion de camion #{deleteConfirmId}?</p>
           <div className="confirm-actions">
             <button className="btn-sm btn-delete" onClick={confirmDelete}>Eliminar</button>
@@ -100,7 +103,7 @@ const ManageTrucks = () => {
       )}
 
       {showForm && (
-        <div className="form-card">
+        <div className="form-card" ref={formRef}>
           <h3>{editingId ? "Editar Camion #" + editingId : "Nuevo Camion"}</h3>
           <form onSubmit={handleSubmit} className="crud-form">
             <div className="form-row">
@@ -142,7 +145,7 @@ const ManageTrucks = () => {
                   <td><span className={`status-badge ${getStatusClass(t.estadoOperativo)}`}>{t.estadoOperativo}</span></td>
                   <td className="cell-actions">
                     <button className="btn-sm btn-edit" onClick={() => handleEdit(t)}>Editar</button>
-                    <button className="btn-sm btn-delete" onClick={() => setDeleteConfirmId(t.idCamion)}>Eliminar</button>
+                    <button className="btn-sm btn-delete" onClick={() => { setDeleteConfirmId(t.idCamion); setTimeout(() => confirmRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 50); }}>Eliminar</button>
                   </td>
                 </tr>
               ))}
