@@ -1,16 +1,48 @@
 services:
-  db:
+  db-users:
     image: mysql:8.0
-    container_name: transandina_db
+    container_name: db_users
     restart: always
     command: --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
     environment:
       MYSQL_ROOT_PASSWORD: rootPassword
     volumes:
-      - ./mysql_data:/var/lib/mysql
-      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
-    ports:
-      - "3307:3306"
+      - ./mysql_users:/var/lib/mysql
+      - ./init-users.sql:/docker-entrypoint-initdb.d/init.sql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-prootPassword"]
+      interval: 10s
+      timeout: 5s
+      retries: 30
+      start_period: 40s
+
+  db-routes:
+    image: mysql:8.0
+    container_name: db_routes
+    restart: always
+    command: --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
+    environment:
+      MYSQL_ROOT_PASSWORD: rootPassword
+    volumes:
+      - ./mysql_routes:/var/lib/mysql
+      - ./init-routes.sql:/docker-entrypoint-initdb.d/init.sql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-prootPassword"]
+      interval: 10s
+      timeout: 5s
+      retries: 30
+      start_period: 40s
+
+  db-telemetry:
+    image: mysql:8.0
+    container_name: db_telemetry
+    restart: always
+    command: --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
+    environment:
+      MYSQL_ROOT_PASSWORD: rootPassword
+    volumes:
+      - ./mysql_telemetry:/var/lib/mysql
+      - ./init-telemetry.sql:/docker-entrypoint-initdb.d/init.sql
     healthcheck:
       test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-prootPassword"]
       interval: 10s
@@ -25,10 +57,10 @@ services:
     ports:
       - "8080:8080"
     depends_on:
-      db:
+      db-users:
         condition: service_healthy
     environment:
-      - SPRING_DATASOURCE_URL=jdbc:mysql://db:3306/auth_db?useSSL=false&allowPublicKeyRetrieval=true&createDatabaseIfNotExist=true&characterEncoding=UTF-8&useUnicode=true
+      - SPRING_DATASOURCE_URL=jdbc:mysql://db-users:3306/auth_db?useSSL=false&allowPublicKeyRetrieval=true&createDatabaseIfNotExist=true&characterEncoding=UTF-8&useUnicode=true
       - SPRING_DATASOURCE_USERNAME=root
       - SPRING_DATASOURCE_PASSWORD=rootPassword
 
@@ -39,10 +71,10 @@ services:
     ports:
       - "8081:8081"
     depends_on:
-      db:
+      db-routes:
         condition: service_healthy
     environment:
-      - SPRING_DATASOURCE_URL=jdbc:mysql://db:3306/routes_db?useSSL=false&allowPublicKeyRetrieval=true&createDatabaseIfNotExist=true&characterEncoding=UTF-8&useUnicode=true
+      - SPRING_DATASOURCE_URL=jdbc:mysql://db-routes:3306/routes_db?useSSL=false&allowPublicKeyRetrieval=true&createDatabaseIfNotExist=true&characterEncoding=UTF-8&useUnicode=true
       - SPRING_DATASOURCE_USERNAME=root
       - SPRING_DATASOURCE_PASSWORD=rootPassword
 
@@ -53,10 +85,10 @@ services:
     ports:
       - "8083:8083"
     depends_on:
-      db:
+      db-telemetry:
         condition: service_healthy
     environment:
-      - SPRING_DATASOURCE_URL=jdbc:mysql://db:3306/telemetry_db?useSSL=false&allowPublicKeyRetrieval=true&createDatabaseIfNotExist=true&characterEncoding=UTF-8&useUnicode=true
+      - SPRING_DATASOURCE_URL=jdbc:mysql://db-telemetry:3306/telemetry_db?useSSL=false&allowPublicKeyRetrieval=true&createDatabaseIfNotExist=true&characterEncoding=UTF-8&useUnicode=true
       - SPRING_DATASOURCE_USERNAME=root
       - SPRING_DATASOURCE_PASSWORD=rootPassword
       - ROUTE_SERVICE_URL=http://route-service:8081
