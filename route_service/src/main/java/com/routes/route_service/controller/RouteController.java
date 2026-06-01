@@ -1,7 +1,10 @@
 package com.routes.route_service.controller;
 
+import com.routes.route_service.dto.RouteEventDTO;
 import com.routes.route_service.model.Route;
 import com.routes.route_service.repository.RouteRepository;
+import com.routes.route_service.service.RouteEventProducer;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -16,6 +19,9 @@ public class RouteController {
 
     @Autowired
     private RouteRepository routeRepository;
+
+    @Autowired
+    private RouteEventProducer routeEventProducer;
 
     @GetMapping
     public ResponseEntity<List<Route>> getAllRoutes() {
@@ -44,7 +50,7 @@ public class RouteController {
         Optional<Route> existingRoute = routeRepository.findById(id);
         if (existingRoute.isPresent()) {
             Route routeToUpdate = existingRoute.get();
-            
+
             routeToUpdate.setIdConductorRef(updatedRouteData.getIdConductorRef());
             routeToUpdate.setIdDespachadorRef(updatedRouteData.getIdDespachadorRef());
             routeToUpdate.setTruck(updatedRouteData.getTruck());
@@ -56,7 +62,7 @@ public class RouteController {
             routeToUpdate.setEstado(updatedRouteData.getEstado());
             routeToUpdate.setFechaSalidaReal(updatedRouteData.getFechaSalidaReal());
             routeToUpdate.setEtaCalculado(updatedRouteData.getEtaCalculado());
-            
+
             return new ResponseEntity<>(routeRepository.save(routeToUpdate), HttpStatus.OK);
         }
         return new ResponseEntity<>(HttpStatus.NOT_FOUND);
@@ -70,5 +76,14 @@ public class RouteController {
         } catch (Exception e) {
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
+    }
+
+    private void publishStatusEvent(Route route) {
+        RouteEventDTO event = new RouteEventDTO(
+                route.getIdRuta(), route.getEstado(), route.getIdConductorRef(),
+                route.getLatDestino(), route.getLngDestino(),
+                route.getDistanciaEstimadaKm() != null ? route.getDistanciaEstimadaKm().doubleValue() : 0.0,
+                route.getOrigenDireccion(), route.getDestinoDireccion());
+        routeEventProducer.publishRouteEvent(event);
     }
 }
