@@ -50,6 +50,17 @@ services:
       retries: 30
       start_period: 40s
 
+  rabbitmq:
+    image: rabbitmq:3-management
+    container_name: rabbitmq
+    restart: always
+    environment:
+      RABBITMQ_DEFAULT_USER: rabbit
+      RABBITMQ_DEFAULT_PASS: rabbit123
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+
   user-service:
     build: ./user-service
     container_name: user_service_app
@@ -64,6 +75,7 @@ services:
       - SPRING_DATASOURCE_USERNAME=root
       - SPRING_DATASOURCE_PASSWORD=rootPassword
 
+
   route-service:
     build: ./route_service
     container_name: route_service_app
@@ -77,6 +89,10 @@ services:
       - SPRING_DATASOURCE_URL=jdbc:mysql://db-routes:3306/routes_db?useSSL=false&allowPublicKeyRetrieval=true&createDatabaseIfNotExist=true&characterEncoding=UTF-8&useUnicode=true
       - SPRING_DATASOURCE_USERNAME=root
       - SPRING_DATASOURCE_PASSWORD=rootPassword
+      - SPRING_RABBITMQ_HOST=rabbitmq
+      - SPRING_RABBITMQ_PORT=5672
+      - SPRING_RABBITMQ_USERNAME=rabbit
+      - SPRING_RABBITMQ_PASSWORD=rabbit123
 
   telemetry-service:
     build: ./telemetry-service
@@ -94,6 +110,10 @@ services:
       - ROUTE_SERVICE_URL=http://route-service:8081
       - ROUTE_SERVICE_USER=route
       - ROUTE_SERVICE_PASS=route123
+      - SPRING_RABBITMQ_HOST=rabbitmq
+      - SPRING_RABBITMQ_PORT=5672
+      - SPRING_RABBITMQ_USERNAME=rabbit
+      - SPRING_RABBITMQ_PASSWORD=rabbit123
 
   bff-service:
     build: ./bff-service
