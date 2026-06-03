@@ -68,6 +68,30 @@ public class RouteController {
         return new ResponseEntity<>(HttpStatus.NOT_FOUND);
     }
 
+    @PutMapping("/{id}/status")
+    public ResponseEntity<Route> updateRouteStatus(@PathVariable Integer id,
+            @RequestBody java.util.Map<String, String> body) {
+        Optional<Route> existingRoute = routeRepository.findById(id);
+        if (existingRoute.isEmpty()) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+        String nuevoEstado = body.get("estado");
+        if (nuevoEstado == null || nuevoEstado.isBlank()) {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
+        Route route = existingRoute.get();
+        String oldEstado = route.getEstado();
+        route.setEstado(nuevoEstado);
+        if ("En Transito".equalsIgnoreCase(nuevoEstado) && route.getFechaSalidaReal() == null) {
+            route.setFechaSalidaReal(java.time.LocalDateTime.now());
+        }
+        Route saved = routeRepository.save(route);
+        if (!saved.getEstado().equals(oldEstado)) {
+            publishStatusEvent(saved);
+        }
+        return new ResponseEntity<>(saved, HttpStatus.OK);
+    }
+
     @DeleteMapping("/{id}")
     public ResponseEntity<HttpStatus> deleteRoute(@PathVariable Integer id) {
         try {
