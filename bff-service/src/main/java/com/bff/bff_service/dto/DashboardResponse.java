@@ -7,4 +7,6 @@ import java.util.List;
 public class DashboardResponse {
     private List<UserSummaryDTO> users;
     private List<RouteSummaryDTO> routes;
+    private List<Object> trucks;
+    private List<Object> alerts;
 }

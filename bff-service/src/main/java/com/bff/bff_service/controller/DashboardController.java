@@ -49,6 +49,8 @@ public class DashboardController {
         DashboardResponse dashboardResponse = new DashboardResponse();
         dashboardResponse.setUsers(new ArrayList<>());
         dashboardResponse.setRoutes(new ArrayList<>());
+        dashboardResponse.setTrucks(new ArrayList<>());
+        dashboardResponse.setAlerts(new ArrayList<>());
 
         String userToken = authService.getUserServiceToken();
         if (userToken != null) {
@@ -76,12 +78,9 @@ public class DashboardController {
                 HttpHeaders headers = new HttpHeaders();
                 headers.set("Authorization", "Bearer " + routeToken);
                 HttpEntity<Void> entity = new HttpEntity<>(headers);
-
                 ResponseEntity<List<RouteSummaryDTO>> routeResponse = restTemplate.exchange(
-                        routeServiceUrl + "/api/routes",
-                        HttpMethod.GET, entity,
-                        new ParameterizedTypeReference<List<RouteSummaryDTO>>() {
-                        });
+                        routeServiceUrl + "/api/routes", HttpMethod.GET, entity,
+                        new ParameterizedTypeReference<List<RouteSummaryDTO>>() {});
                 if (routeResponse.getBody() != null) {
                     List<RouteSummaryDTO> routes = routeResponse.getBody();
                     for (RouteSummaryDTO route : routes) {
@@ -89,11 +88,32 @@ public class DashboardController {
                     }
                     dashboardResponse.setRoutes(routes);
                 }
+                ResponseEntity<List<Object>> truckResponse = restTemplate.exchange(
+                        routeServiceUrl + "/api/camiones", HttpMethod.GET, entity,
+                        new ParameterizedTypeReference<List<Object>>() {});
+                if (truckResponse.getBody() != null) {
+                    dashboardResponse.setTrucks(truckResponse.getBody());
+                }
             } catch (Exception e) {
-                System.err.println("Error al obtener rutas: " + e.getMessage());
+                System.err.println("Error al obtener rutas o camiones: " + e.getMessage());
             }
         }
-
+        String telemetryToken = authService.getTelemetryServiceToken();
+        if (telemetryToken != null) {
+            try {
+                HttpHeaders headers = new HttpHeaders();
+                headers.set("Authorization", "Bearer " + telemetryToken);
+                HttpEntity<Void> entity = new HttpEntity<>(headers);
+                ResponseEntity<List<Object>> alertResponse = restTemplate.exchange(
+                        telemetryServiceUrl + "/api/alerts/active", HttpMethod.GET, entity,
+                        new ParameterizedTypeReference<List<Object>>() {});
+                if (alertResponse.getBody() != null) {
+                    dashboardResponse.setAlerts(alertResponse.getBody());
+                }
+            } catch (Exception e) {
+                System.err.println("Error al obtener alertas: " + e.getMessage());
+            }
+        }
         return ResponseEntity.ok(dashboardResponse);
     }
 
