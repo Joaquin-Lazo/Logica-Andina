@@ -74,6 +74,7 @@ services:
       - SPRING_DATASOURCE_URL=jdbc:mysql://db-users:3306/auth_db?useSSL=false&allowPublicKeyRetrieval=true&createDatabaseIfNotExist=true&characterEncoding=UTF-8&useUnicode=true
       - SPRING_DATASOURCE_USERNAME=root
       - SPRING_DATASOURCE_PASSWORD=rootPassword
+      - JAVA_TOOL_OPTIONS=-Xms128m -Xmx256m
 
 
   route-service:
@@ -93,6 +94,7 @@ services:
       - SPRING_RABBITMQ_PORT=5672
       - SPRING_RABBITMQ_USERNAME=rabbit
       - SPRING_RABBITMQ_PASSWORD=rabbit123
+      - JAVA_TOOL_OPTIONS=-Xms128m -Xmx256m
 
   telemetry-service:
     build: ./telemetry-service
@@ -114,6 +116,7 @@ services:
       - SPRING_RABBITMQ_PORT=5672
       - SPRING_RABBITMQ_USERNAME=rabbit
       - SPRING_RABBITMQ_PASSWORD=rabbit123
+      - JAVA_TOOL_OPTIONS=-Xms128m -Xmx256m
 
   bff-service:
     build: ./bff-service
@@ -129,6 +132,7 @@ services:
       - USER_SERVICE_URL=http://user-service:8080
       - ROUTE_SERVICE_URL=http://route-service:8081
       - TELEMETRY_SERVICE_URL=http://telemetry-service:8083
+      - JAVA_TOOL_OPTIONS=-Xms128m -Xmx256m
 
   app:
     build: ./frontend-service
