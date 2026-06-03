@@ -35,7 +35,7 @@ public class DashboardController {
 
     // Simulacion: 1 minuto real = 1 hora simulada (velocidad 60x)
     private static final double TIME_MULTIPLIER = 60.0;
-    
+
     @Autowired
     public DashboardController(RestTemplate restTemplate, AuthService authService) {
         this.restTemplate = restTemplate;
@@ -60,8 +60,8 @@ public class DashboardController {
                 ResponseEntity<List<UserSummaryDTO>> userResponse = restTemplate.exchange(
                         userServiceUrl + "/api/users",
                         HttpMethod.GET, entity,
-                        new ParameterizedTypeReference<List<UserSummaryDTO>>() {}
-                );
+                        new ParameterizedTypeReference<List<UserSummaryDTO>>() {
+                        });
                 if (userResponse.getBody() != null) {
                     dashboardResponse.setUsers(userResponse.getBody());
                 }
@@ -80,8 +80,8 @@ public class DashboardController {
                 ResponseEntity<List<RouteSummaryDTO>> routeResponse = restTemplate.exchange(
                         routeServiceUrl + "/api/routes",
                         HttpMethod.GET, entity,
-                        new ParameterizedTypeReference<List<RouteSummaryDTO>>() {}
-                );
+                        new ParameterizedTypeReference<List<RouteSummaryDTO>>() {
+                        });
                 if (routeResponse.getBody() != null) {
                     List<RouteSummaryDTO> routes = routeResponse.getBody();
                     for (RouteSummaryDTO route : routes) {
@@ -103,18 +103,21 @@ public class DashboardController {
      * Calcula el progreso simulado de cada ruta en base al tiempo transcurrido.
      *
      * Para rutas "En Transito": interpola entre 0-100% usando un multiplicador
-     * de tiempo (60x). Un viaje de 1030 km a 80 km/h (~13h) se completa en ~13 min reales.
+     * de tiempo (60x). Un viaje de 1030 km a 80 km/h (~13h) se completa en ~13 min
+     * reales.
      *
      * Para "Completada": fijado en 100%. Para otros estados: fijado en 0%.
      */
     private void enrichWithSimulation(RouteSummaryDTO route) {
         String estado = route.getEstado();
-        if (estado == null) return;
+        if (estado == null)
+            return;
 
         if ("Completada".equalsIgnoreCase(estado.trim())) {
             route.setProgressPercent(100.0);
             route.setKmRecorridos(route.getDistanciaEstimadaKm() != null
-                    ? route.getDistanciaEstimadaKm().doubleValue() : 0.0);
+                    ? route.getDistanciaEstimadaKm().doubleValue()
+                    : 0.0);
             route.setVelocidadSimulada(0.0);
             return;
         }
@@ -130,11 +133,14 @@ public class DashboardController {
 
         // Usa fechaSalidaReal si existe, sino fechaCreacion como respaldo
         LocalDateTime departure = route.getFechaSalidaReal();
-        if (departure == null) departure = route.getFechaCreacion();
-        if (departure == null) departure = now.minusMinutes(5);
+        if (departure == null)
+            departure = route.getFechaCreacion();
+        if (departure == null)
+            departure = now.minusMinutes(5);
 
         double distKm = route.getDistanciaEstimadaKm() != null
-                ? route.getDistanciaEstimadaKm() : 500.0;
+                ? route.getDistanciaEstimadaKm()
+                : 500.0;
 
         // VELOCIDAD ASIGNADA (Determinista usando el ID, entre 60 y 100 km/h)
         int seed = route.getIdRuta() != null ? route.getIdRuta() : 1;
@@ -146,7 +152,8 @@ public class DashboardController {
 
         long elapsedRealSeconds = Duration.between(departure, now).getSeconds();
         double progress = totalRealSeconds > 0
-                ? (double) elapsedRealSeconds / totalRealSeconds : 0.0;
+                ? (double) elapsedRealSeconds / totalRealSeconds
+                : 0.0;
 
         // Limitar entre 0% y 100%
         progress = Math.max(0.0, Math.min(1.0, progress));
@@ -159,7 +166,8 @@ public class DashboardController {
             route.setVelocidadSimulada(0.0);
             autoCompleteRouteInDb(route);
         } else {
-            // Velocidad simulada: la velocidad del camion +/- variacion aleatoria (para que se vea vivo)
+            // Velocidad simulada: la velocidad del camion +/- variacion aleatoria (para que
+            // se vea vivo)
             double jitter = (Math.random() * 6.0) - 3.0;
             route.setVelocidadSimulada(Math.round((baseSpeed + jitter) * 10.0) / 10.0);
         }
@@ -176,7 +184,7 @@ public class DashboardController {
     }
 
     private ResponseEntity<Object> proxyToService(String url, HttpMethod method, Object body,
-                                                   Supplier<String> tokenSupplier) {
+            Supplier<String> tokenSupplier) {
         try {
             String jwt = tokenSupplier.get();
             HttpHeaders headers = new HttpHeaders();
@@ -188,7 +196,8 @@ public class DashboardController {
             }
 
             HttpEntity<Object> request = body != null
-                    ? new HttpEntity<>(body, headers) : new HttpEntity<>(headers);
+                    ? new HttpEntity<>(body, headers)
+                    : new HttpEntity<>(headers);
 
             ResponseEntity<Object> response = restTemplate.exchange(url, method, request, Object.class);
             return new ResponseEntity<>(response.getBody(), response.getStatusCode());
@@ -207,6 +216,11 @@ public class DashboardController {
     @PutMapping("/proxy/routes/{id}")
     public ResponseEntity<Object> updateRoute(@PathVariable Integer id, @RequestBody Object payload) {
         return proxyToRoute("/api/routes/" + id, HttpMethod.PUT, payload);
+    }
+
+    @PutMapping("/proxy/routes/{id}/status")
+    public ResponseEntity<Object> updateRouteStatus(@PathVariable Integer id, @RequestBody Object payload) {
+        return proxyToRoute("/api/routes/" + id + "/status", HttpMethod.PUT, payload);
     }
 
     @DeleteMapping("/proxy/routes/{id}")
@@ -252,7 +266,7 @@ public class DashboardController {
     }
 
     @PostMapping("/proxy/user-login")
-    public ResponseEntity<Object> userLogin(@RequestBody Object payload){
+    public ResponseEntity<Object> userLogin(@RequestBody Object payload) {
         return proxyToUser("/api/auth/user-login", HttpMethod.POST, payload);
     }
 
@@ -348,19 +362,19 @@ public class DashboardController {
     private void autoCompleteRouteInDb(RouteSummaryDTO route) {
         try {
             String token = authService.getRouteServiceToken();
-            if (token == null) return;
-            
+            if (token == null)
+                return;
+
             HttpHeaders headers = new HttpHeaders();
             headers.set("Authorization", "Bearer " + token);
             headers.setContentType(MediaType.APPLICATION_JSON);
-            
+
             HttpEntity<RouteSummaryDTO> request = new HttpEntity<>(route, headers);
             restTemplate.exchange(
-                routeServiceUrl + "/api/routes/" + route.getIdRuta(),
-                HttpMethod.PUT,
-                request,
-                Object.class
-            );
+                    routeServiceUrl + "/api/routes/" + route.getIdRuta(),
+                    HttpMethod.PUT,
+                    request,
+                    Object.class);
             System.out.println("Ruta " + route.getIdRuta() + " auto-completada en base de datos.");
         } catch (Exception e) {
             System.err.println("Error auto-completando ruta en DB: " + e.getMessage());

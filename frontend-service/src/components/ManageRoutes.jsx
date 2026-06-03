@@ -24,7 +24,7 @@ const ManageRoutes = () => {
     fetch(BFF)
       .then(r => r.json())
       .then(data => setRoutes(data.routes || []))
-      .catch(() => {});
+      .catch(() => { });
   }, []);
 
   useEffect(() => { fetchRoutes(); }, [fetchRoutes]);
@@ -48,7 +48,7 @@ const ManageRoutes = () => {
     errs.destinoDireccion = validateNotEmpty(form.destinoDireccion, 'Destino');
     errs.coords = validateCoord(form.latDestino, form.lngDestino);
     errs.distanciaEstimadaKm = validatePositiveNumber(form.distanciaEstimadaKm, 'Distancia');
-    const filtered = Object.fromEntries(Object.entries(errs).filter(([,v]) => v));
+    const filtered = Object.fromEntries(Object.entries(errs).filter(([, v]) => v));
     setErrors(filtered);
     if (Object.keys(filtered).length > 0) return;
     const payload = {
@@ -100,11 +100,29 @@ const ManageRoutes = () => {
     try {
       await fetch(`${BFF}/proxy/routes/${deleteConfirmId}`, { method: "DELETE" });
       fetchRoutes();
-    } catch {}
+    } catch { }
     setDeleteConfirmId(null);
   };
 
   const getStatusClass = (s) => s ? s.toLowerCase().replace(/\s+/g, "-") : "";
+
+  const updateRouteStatus = async (id, newStatus) => {
+    try {
+      const res = await fetch(`${BFF}/proxy/routes/${id}/status`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ estado: newStatus })
+      });
+      if (res.ok) {
+        setMsg("Estado actualizado");
+        fetchRoutes();
+      } else {
+        setMsg("Error al actualizar estado");
+      }
+    } catch {
+      setMsg("Error de conexion");
+    }
+  };
 
   return (
     <main className="dashboard-container">
@@ -177,6 +195,10 @@ const ManageRoutes = () => {
                   <td className="cell-number">{r.distanciaEstimadaKm} km</td>
                   <td><span className={`status-badge ${getStatusClass(r.estado)}`}>{r.estado}</span></td>
                   <td className="cell-actions">
+                    {r.estado === 'Pendiente' && (
+                      <button className="btn-sm btn-primary" onClick={() => updateRouteStatus(r.idRuta, 'En Transito')}>Iniciar</button>)}
+                    {r.estado === 'En Transito' && (
+                      <button className="btn-sm btn-primary" onClick={() => updateRouteStatus(r.idRuta, 'Completada')}>Completar</button>)}
                     <button className="btn-sm btn-edit" onClick={() => handleEdit(r)}>Editar</button>
                     <button className="btn-sm btn-delete" onClick={() => { setDeleteConfirmId(r.idRuta); setTimeout(() => confirmRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 50); }}>Eliminar</button>
                   </td>
