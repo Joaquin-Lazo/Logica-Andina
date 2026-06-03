@@ -10,6 +10,7 @@ import ManageInvoices from "./components/ManageInvoices";
 import ManageCargo from "./components/ManageCargo";
 import Telemetry from "./components/Telemetry";
 import Login from "./components/Login";
+import Reports from "./components/Reports";
 import "./App.css";
 
 const UserBar = () => {
@@ -64,6 +65,11 @@ const AppNav = () => {
       {role === ROLES.ADMIN && (
         <NavLink to="/usuarios" className={({ isActive }) => isActive ? "nav-link active" : "nav-link"}>
           Usuarios
+        </NavLink>
+      )}
+      {(role === ROLES.ADMIN || role === ROLES.DESPACHADOR) && (
+        <NavLink to="/reportes" className={({ isActive }) => isActive ? "nav-link active" : "nav-link"}>
+          Reportes
         </NavLink>
       )}
     </nav>
