@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { useRole, ROLES } from "../context/RoleContext";
 import DashboardKPIs from "./DashboardKPIs";
+import DashboardCharts from "./DashboardCharts";
 
 const REFRESH_INTERVAL_MS = 5000;
 
@@ -78,6 +79,10 @@ const Dashboard = () => {
           <DashboardKPIs 
             routes={filteredRoutes} 
             trucks={dashboardData.trucks || []} 
+            alerts={dashboardData.alerts || []} 
+          />
+          <DashboardCharts 
+            routes={filteredRoutes} 
             alerts={dashboardData.alerts || []} 
           />
 
