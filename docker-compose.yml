@@ -61,6 +61,16 @@ services:
       - "5672:5672"
       - "15672:15672"
 
+  client-website:
+    build: ./client-website
+    container_name: logica_andina_client
+    restart: on-failure
+    ports:
+      # Puedes acceder a la página web del cliente en http://localhost
+      - "80:80" 
+    depends_on:
+      - bff-service
+
   user-service:
     build: ./user-service
     container_name: user_service_app

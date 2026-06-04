@@ -11,6 +11,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
+import com.Users.user_service.model.ContactRequest;
+import com.Users.user_service.repository.ContactRequestRepository;
 import com.Users.user_service.model.User;
 import com.Users.user_service.repository.UserRepository;
 
@@ -25,6 +27,9 @@ public class UserController {
     
     @Autowired
     private UserRepository userRepository;
+
+    @Autowired 
+    private ContactRequestRepository contactRequestRepository;
 
     @Autowired
     private PasswordEncoder passwordEncoder;
@@ -54,6 +59,11 @@ public class UserController {
         } catch (Exception e) {
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
+    }
+    @PostMapping("/api/contacts")
+    public ResponseEntity<?> createContact(@RequestBody ContactRequest request) {
+        contactRequestRepository.save(request);
+        return ResponseEntity.ok().build();
     }
 
     @PutMapping("/{id}")

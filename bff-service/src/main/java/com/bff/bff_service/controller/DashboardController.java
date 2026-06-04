@@ -274,6 +274,11 @@ public class DashboardController {
     public ResponseEntity<Object> createUser(@RequestBody Object payload) {
         return proxyToUser("/api/users", HttpMethod.POST, payload);
     }
+    
+    @PostMapping("/proxy/contact")
+    public ResponseEntity<Object> createContactRequest(@RequestBody Object payload) {
+        return proxyToUser("/api/contacts", HttpMethod.POST, payload);
+    }
 
     @PutMapping("/proxy/users/{id}")
     public ResponseEntity<Object> updateUser(@PathVariable Integer id, @RequestBody Object payload) {
