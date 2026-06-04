@@ -1,7 +1,7 @@
 import React, { useMemo } from 'react';
 import { Card, Metric, Text, Flex, ProgressBar, Grid, BadgeDelta } from '@tremor/react';
 
-const DashboardKPIs = ({ routes = [], trucks = []}) => {
+const DashboardKPIs = ({ routes = [], trucks = [] }) => {
   const activeRoutes = useMemo(() => routes.filter(r => r.estado === 'En Transito'), [routes]);
   const activePercent = routes.length > 0 ? (activeRoutes.length / routes.length) * 100 : 0;
   const completedRoutes = useMemo(() => routes.filter(r => r.estado === 'Completada'), [routes]);
@@ -9,9 +9,14 @@ const DashboardKPIs = ({ routes = [], trucks = []}) => {
 
   const pendingRoutes = useMemo(() => routes.filter(r => r.estado === 'Pendiente'), [routes]);
 
-  const totalTrucks = trucks.length > 0 ? trucks.length : 15; 
-  const availableTrucks = totalTrucks - activeRoutes.length;
-  const fleetPercent = (activeRoutes.length / totalTrucks) * 100;
+  const totalTrucks = trucks.length > 0 ? trucks.length : 10; 
+  
+  // Calculate unique trucks currently in transit so we don't count the same truck twice
+  const activeTruckIds = new Set(activeRoutes.map(r => r.truck?.idCamion).filter(Boolean));
+  const activeTrucksCount = activeTruckIds.size > 0 ? activeTruckIds.size : Math.min(activeRoutes.length, totalTrucks);
+  
+  const availableTrucks = Math.max(0, totalTrucks - activeTrucksCount);
+  const fleetPercent = (activeTrucksCount / totalTrucks) * 100;
 
   return (
     <Grid numItemsSm={2} numItemsLg={4} className="gap-6 mb-8 mt-4">
@@ -35,7 +40,7 @@ const DashboardKPIs = ({ routes = [], trucks = []}) => {
 
       <Card decoration="top" decorationColor="emerald">
         <Text>Capacidad de Flota (Uso)</Text>
-        <Metric>{activeRoutes.length} / {totalTrucks}</Metric>
+        <Metric>{activeTrucksCount} / {totalTrucks}</Metric>
         <Flex className="mt-4">
           <Text>{availableTrucks} camiones disponibles</Text>
         </Flex>
