@@ -683,6 +683,19 @@
   padding: 12px;
 }
 
+/* ===== Dashboard Charts Grid ===== */
+.charts-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+@media (max-width: 768px) {
+  .charts-grid {
+    grid-template-columns: 1fr;
+  }
+}
 
 /* ===== Validation ===== */
 

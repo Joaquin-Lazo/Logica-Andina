@@ -12,7 +12,6 @@ const Dashboard = () => {
   const [error, setError] = useState(null);
   const [lastUpdated, setLastUpdated] = useState(null);
   const [isLive, setIsLive] = useState(true);
-
   const fetchDashboard = useCallback(() => {
     fetch("http://localhost:8082/api/dashboard")
       .then((response) => {
@@ -81,9 +80,10 @@ const Dashboard = () => {
             trucks={dashboardData.trucks || []} 
             alerts={dashboardData.alerts || []} 
           />
-          <DashboardCharts 
-            routes={filteredRoutes} 
-            alerts={dashboardData.alerts || []} 
+          <DashboardCharts
+            routes={filteredRoutes}
+            trucks={dashboardData.trucks || []}
+            users={dashboardData.users || []}
           />
 
           <div className="tables-wrapper-vertical">

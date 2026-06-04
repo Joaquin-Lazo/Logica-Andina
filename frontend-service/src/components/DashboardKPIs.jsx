@@ -1,25 +1,17 @@
 import React, { useMemo } from 'react';
-import { Card, Metric, Text, Flex, ProgressBar, Grid, BadgeDelta, Tracker } from '@tremor/react';
+import { Card, Metric, Text, Flex, ProgressBar, Grid, BadgeDelta } from '@tremor/react';
 
-const DashboardKPIs = ({ routes = [], trucks = [], alerts = [] }) => {
+const DashboardKPIs = ({ routes = [], trucks = []}) => {
   const activeRoutes = useMemo(() => routes.filter(r => r.estado === 'En Transito'), [routes]);
   const activePercent = routes.length > 0 ? (activeRoutes.length / routes.length) * 100 : 0;
+  const completedRoutes = useMemo(() => routes.filter(r => r.estado === 'Completada'), [routes]);
+  const completedPercent = routes.length > 0 ? (completedRoutes.length / routes.length) * 100 : 0;
 
   const pendingRoutes = useMemo(() => routes.filter(r => r.estado === 'Pendiente'), [routes]);
 
   const totalTrucks = trucks.length > 0 ? trucks.length : 15; 
   const availableTrucks = totalTrucks - activeRoutes.length;
   const fleetPercent = (activeRoutes.length / totalTrucks) * 100;
-
-  const trackerData = useMemo(() => {
-    if (!alerts || alerts.length === 0) {
-      return Array(10).fill({ color: "emerald", tooltip: "Sin alertas recientes" });
-    }
-    return alerts.slice(0, 10).map(alert => ({
-      color: alert.severidad === 'ALTA' ? 'rose' : alert.severidad === 'MEDIA' ? 'amber' : 'yellow',
-      tooltip: alert.mensaje || "Alerta detectada"
-    }));
-  }, [alerts]);
 
   return (
     <Grid numItemsSm={2} numItemsLg={4} className="gap-6 mb-8 mt-4">
@@ -50,11 +42,13 @@ const DashboardKPIs = ({ routes = [], trucks = [], alerts = [] }) => {
         <ProgressBar value={fleetPercent} color={fleetPercent > 80 ? "rose" : "emerald"} className="mt-2" />
       </Card>
 
-      <Card decoration="top" decorationColor={alerts && alerts.length > 0 ? "rose" : "emerald"}>
-        <Text>Alertas de Telemetría</Text>
-        <Metric>{alerts ? alerts.length : 0}</Metric>
-        <Text className="mt-4 mb-2">Últimos eventos:</Text>
-        <Tracker data={trackerData} className="mt-2" />
+      <Card decoration="top" decorationColor="cyan">
+        <Text>Rutas Completadas</Text>
+        <Metric>{completedRoutes.length}</Metric>
+        <Flex className="mt-4">
+          <Text>{completedPercent.toFixed(1)}% tasa de cumplimiento</Text>
+        </Flex>
+        <ProgressBar value={completedPercent} color="cyan" className="mt-2" />
       </Card>
     </Grid>
   );
