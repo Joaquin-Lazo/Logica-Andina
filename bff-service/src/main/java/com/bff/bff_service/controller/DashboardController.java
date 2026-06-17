@@ -278,7 +278,7 @@ public class DashboardController {
     
     @PostMapping("/proxy/contact")
     public ResponseEntity<Object> createContactRequest(@RequestBody Object payload) {
-        return proxyToUser("/api/contacts", HttpMethod.POST, payload);
+        return proxyToUser("/api/users/contacts", HttpMethod.POST, payload);
     }
 
     @PutMapping("/proxy/users/{id}")
@@ -395,16 +395,18 @@ public class DashboardController {
             headers.set("Authorization", "Bearer " + token);
             headers.setContentType(MediaType.APPLICATION_JSON);
 
-            // 1. Update the route status to Completada
-            HttpEntity<RouteSummaryDTO> routeRequest = new HttpEntity<>(route, headers);
+            // Use the STATUS endpoint so RabbitMQ gets the "Completada" event
+            // This triggers telemetry to stop the GPS simulator for this route
+            java.util.Map<String, String> statusBody = java.util.Map.of("estado", "Completada");
+            HttpEntity<java.util.Map<String, String>> statusRequest = new HttpEntity<>(statusBody, headers);
             restTemplate.exchange(
-                    routeServiceUrl + "/api/routes/" + route.getIdRuta(),
+                    routeServiceUrl + "/api/routes/" + route.getIdRuta() + "/status",
                     HttpMethod.PUT,
-                    routeRequest,
+                    statusRequest,
                     Object.class);
-            System.out.println("Ruta " + route.getIdRuta() + " auto-completada en base de datos.");
+            System.out.println("Ruta " + route.getIdRuta() + " auto-completada via /status (RabbitMQ notificado).");
 
-            // 2. Update the truck status to Disponible
+            // Also update the truck status to Disponible
             if (route.getTruck() != null && route.getTruck().getIdCamion() != null) {
                 TruckSummaryDTO truckUpdate = route.getTruck();
                 truckUpdate.setEstadoOperativo("Disponible");
@@ -414,7 +416,7 @@ public class DashboardController {
                         HttpMethod.PUT,
                         truckRequest,
                         Object.class);
-                System.out.println("Camion " + truckUpdate.getIdCamion() + " (" + truckUpdate.getPatente() + ") marcado como Disponible.");
+                System.out.println("Camion " + truckUpdate.getIdCamion() + " marcado como Disponible.");
             }
         } catch (Exception e) {
             System.err.println("Error auto-completando ruta en DB: " + e.getMessage());

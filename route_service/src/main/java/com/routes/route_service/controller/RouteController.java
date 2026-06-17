@@ -23,6 +23,12 @@ public class RouteController {
     @Autowired
     private RouteEventProducer routeEventProducer;
 
+    @Autowired
+    private com.routes.route_service.repository.CargoRepository cargoRepository;
+
+    @Autowired
+    private com.routes.route_service.repository.InvoiceRepository invoiceRepository;
+
     @GetMapping
     public ResponseEntity<List<Route>> getAllRoutes() {
         return new ResponseEntity<>(routeRepository.findAll(), HttpStatus.OK);
@@ -89,6 +95,24 @@ public class RouteController {
         if (!saved.getEstado().equals(oldEstado)) {
             publishStatusEvent(saved);
         }
+        // Auto-update cargo and invoice when route completes
+        if ("Completada".equalsIgnoreCase(nuevoEstado)) {
+            // Mark all cargo for this route as "Entregado"
+            cargoRepository.findAll().stream()
+                .filter(c -> c.getRoute() != null && c.getRoute().getIdRuta().equals(id))
+                .forEach(c -> {
+                    c.setEstadoEntrega("Entregado");
+                    cargoRepository.save(c);
+                });
+            // Mark all invoices for this route as "Pagada" 
+            invoiceRepository.findAll().stream()
+                .filter(inv -> inv.getRoute() != null && inv.getRoute().getIdRuta().equals(id))
+                .forEach(inv -> {
+                    inv.setEstadoPago("Pagada");
+                    invoiceRepository.save(inv);
+                });
+        }
+        
         return new ResponseEntity<>(saved, HttpStatus.OK);
     }
 

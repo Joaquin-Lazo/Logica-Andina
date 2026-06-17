@@ -60,7 +60,7 @@ public class UserController {
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
-    @PostMapping("/api/contacts")
+    @PostMapping("/contacts")
     public ResponseEntity<?> createContact(@RequestBody ContactRequest request) {
         contactRequestRepository.save(request);
         return ResponseEntity.ok().build();

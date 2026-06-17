@@ -84,13 +84,13 @@ INSERT INTO clientes (rut_empresa, razon_social, direccion_facturacion, correo_c
 ('55555555-5', 'Agricola del Maule', 'Camino Real S/N, Talca', 'despachos@agrimaule.cl');
 
 INSERT INTO rutas (id_conductor_ref, id_despachador_ref, id_camion, origen_direccion, destino_direccion, lat_destino, lng_destino, distancia_estimada_km, estado) VALUES
-(7, 2, 1, 'Centro Logístico Renca, Santiago', 'Faena Minera Antofagasta', -23.65000000, -70.40000000, 1335.2, 'En Transito'),
-(8, 3, 2, 'Puerto San Antonio', 'Centro de Distribución Quilicura', -33.36440000, -70.73000000, 115.8, 'En Transito'),
-(9, 4, 3, 'Bodega Central, Santiago', 'Puerto Coronel, Concepción', -36.82010000, -73.04440000, 500.2, 'En Transito'),
-(10, 5, 4, 'Puerto Valparaíso', 'Bodegas La Serena', -29.90270000, -71.25190000, 430.0, 'En Transito'),
-(11, 6, 5, 'Planta Industrial Temuco', 'Puerto Montt, Zona Sur', -41.46930000, -72.94230000, 355.0, 'En Transito'),
-(12, 2, 6, 'Zofri Iquique', 'Arica Puerto', -18.47830000, -70.31260000, 310.0, 'En Transito'),
-(13, 3, 7, 'Rancagua Agro', 'Talca Centro de Acopio', -35.42640000, -71.65540000, 170.5, 'En Transito'),
+(7, 2, 1, 'Centro Logístico Renca, Santiago', 'Faena Minera Antofagasta', -23.65000000, -70.40000000, 1335.2, 'Pendiente'),
+(8, 3, 2, 'Puerto San Antonio', 'Centro de Distribución Quilicura', -33.36440000, -70.73000000, 115.8, 'Pendiente'),
+(9, 4, 3, 'Bodega Central, Santiago', 'Puerto Coronel, Concepción', -36.82010000, -73.04440000, 500.2, 'Pendiente'),
+(10, 5, 4, 'Puerto Valparaíso', 'Bodegas La Serena', -29.90270000, -71.25190000, 430.0, 'Pendiente'),
+(11, 6, 5, 'Planta Industrial Temuco', 'Puerto Montt, Zona Sur', -41.46930000, -72.94230000, 355.0, 'Pendiente'),
+(12, 2, 6, 'Zofri Iquique', 'Arica Puerto', -18.47830000, -70.31260000, 310.0, 'Pendiente'),
+(13, 3, 7, 'Rancagua Agro', 'Talca Centro de Acopio', -35.42640000, -71.65540000, 170.5, 'Pendiente'),
 (14, 4, 8, 'Bodega Maipú, Santiago', 'Puerto Valparaíso', -33.04560000, -71.62140000, 120.0, 'Completada'),
 (15, 5, 9, 'Minera Antofagasta', 'Puerto Iquique', -20.21330000, -70.15030000, 415.0, 'Completada'),
 (16, 6, 10, 'Coronel, Concepción', 'Temuco Industrial', -38.73970000, -72.59010000, 260.0, 'Completada'),

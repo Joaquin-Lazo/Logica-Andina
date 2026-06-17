@@ -107,3 +107,8 @@ footer {
 
 /* ===== SMOOTH SCROLL ===== */
 html { scroll-behavior: smooth; }
+/* ===== MAP MARKERS ===== */
+.truck-marker {
+    background: none !important;
+    border: none !important;
+}
