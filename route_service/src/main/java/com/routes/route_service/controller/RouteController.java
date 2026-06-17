@@ -5,6 +5,8 @@ import com.routes.route_service.model.Route;
 import com.routes.route_service.repository.RouteRepository;
 import com.routes.route_service.service.RouteEventProducer;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -15,6 +17,7 @@ import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/routes")
+@Tag(name = "Rutas", description = "Endpoints para la gestión de rutas y viajes")
 public class RouteController {
 
     @Autowired
@@ -29,11 +32,13 @@ public class RouteController {
     @Autowired
     private com.routes.route_service.repository.InvoiceRepository invoiceRepository;
 
+    @Operation(summary = "Listar todas las rutas", description = "Retorna una lista con todas las rutas registradas en el sistema.")
     @GetMapping
     public ResponseEntity<List<Route>> getAllRoutes() {
         return new ResponseEntity<>(routeRepository.findAll(), HttpStatus.OK);
     }
 
+    @Operation(summary = "Obtener ruta por ID", description = "Retorna los detalles de una ruta específica.")
     @GetMapping("/{id}")
     public ResponseEntity<Route> getRouteById(@PathVariable Integer id) {
         Optional<Route> route = routeRepository.findById(id);
@@ -41,6 +46,7 @@ public class RouteController {
                 .orElseGet(() -> new ResponseEntity<>(HttpStatus.NOT_FOUND));
     }
 
+    @Operation(summary = "Crear nueva ruta", description = "Crea una nueva ruta y la guarda en la base de datos.")
     @PostMapping
     public ResponseEntity<Route> createRoute(@RequestBody Route newRoute) {
         try {
@@ -51,6 +57,7 @@ public class RouteController {
         }
     }
 
+    @Operation(summary = "Actualizar ruta existente", description = "Actualiza todos los datos de una ruta según su ID.")
     @PutMapping("/{id}")
     public ResponseEntity<Route> updateRoute(@PathVariable Integer id, @RequestBody Route updatedRouteData) {
         Optional<Route> existingRoute = routeRepository.findById(id);
@@ -74,6 +81,7 @@ public class RouteController {
         return new ResponseEntity<>(HttpStatus.NOT_FOUND);
     }
 
+    @Operation(summary = "Actualizar estado de la ruta", description = "Actualiza el estado de la ruta (Pendiente, En Transito, Completada). Si se marca como Completada, automáticamente marca las facturas y cargamentos asociados como Completados.")
     @PutMapping("/{id}/status")
     public ResponseEntity<Route> updateRouteStatus(@PathVariable Integer id,
             @RequestBody java.util.Map<String, String> body) {

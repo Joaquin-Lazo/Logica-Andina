@@ -17,7 +17,9 @@ CREATE TABLE IF NOT EXISTS clientes (
     rut_empresa VARCHAR(20) NOT NULL UNIQUE,
     razon_social VARCHAR(150) NOT NULL,
     direccion_facturacion VARCHAR(255) NOT NULL,
-    correo_contacto VARCHAR(150) NOT NULL
+    correo_contacto VARCHAR(150) NOT NULL,
+    latitud DECIMAL(10, 8),
+    longitud DECIMAL(11, 8)
 );
 
 CREATE TABLE IF NOT EXISTS rutas (
@@ -76,12 +78,12 @@ INSERT INTO camiones (patente, marca_modelo, capacidad_max_toneladas, estado_ope
 ('OP-QR-78', 'Mercedes-Benz Actros', 30.0, 'Disponible'),
 ('ST-UV-90', 'Mack Anthem', 22.5, 'Disponible');
 
-INSERT INTO clientes (rut_empresa, razon_social, direccion_facturacion, correo_contacto) VALUES
-('11111111-K', 'Minera Norte SpA', 'Av. Industrial 400, Antofagasta', 'pagos@mineranorte.cl'),
-('22222222-2', 'Retail del Sur S.A.', 'Ruta 5 Sur Km 1000, Puerto Montt', 'logistica@retaildelsur.cl'),
-('33333333-3', 'Supermercados El Valle', 'Av. Central 123, Santiago', 'facturacion@elvalle.cl'),
-('44444444-4', 'Exportadora Andina', 'Ruta 68 Km 15, Casablanca', 'logistica@exportandina.cl'),
-('55555555-5', 'Agricola del Maule', 'Camino Real S/N, Talca', 'despachos@agrimaule.cl');
+INSERT INTO clientes (rut_empresa, razon_social, direccion_facturacion, correo_contacto, latitud, longitud) VALUES
+('11111111-K', 'Minera Norte SpA', 'Av. Industrial 400, Antofagasta', 'pagos@mineranorte.cl', -23.65000000, -70.40000000),
+('22222222-2', 'Retail del Sur S.A.', 'Ruta 5 Sur Km 1000, Puerto Montt', 'logistica@retaildelsur.cl', -41.46930000, -72.94230000),
+('33333333-3', 'Supermercados El Valle', 'Av. Central 123, Santiago', 'facturacion@elvalle.cl', -33.45690000, -70.64820000),
+('44444444-4', 'Exportadora Andina', 'Ruta 68 Km 15, Casablanca', 'logistica@exportandina.cl', -33.31500000, -71.40500000),
+('55555555-5', 'Agricola del Maule', 'Camino Real S/N, Talca', 'despachos@agrimaule.cl', -35.42640000, -71.65540000);
 
 INSERT INTO rutas (id_conductor_ref, id_despachador_ref, id_camion, origen_direccion, destino_direccion, lat_destino, lng_destino, distancia_estimada_km, estado) VALUES
 (7, 2, 1, 'Centro Logístico Renca, Santiago', 'Faena Minera Antofagasta', -23.65000000, -70.40000000, 1335.2, 'Pendiente'),

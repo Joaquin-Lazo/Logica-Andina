@@ -28,4 +28,10 @@ public class Client {
 
     @Column(name = "correo_contacto", nullable = false, length = 150)
     private String correoContacto;
+
+    @Column(name = "latitud")
+    private Double latitud;
+
+    @Column(name = "longitud")
+    private Double longitud;
 }

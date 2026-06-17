@@ -276,6 +276,11 @@ public class DashboardController {
         return proxyToUser("/api/users", HttpMethod.POST, payload);
     }
     
+    @GetMapping("/proxy/contacts")
+    public ResponseEntity<Object> getContacts() {
+        return proxyToUser("/api/users/contacts", HttpMethod.GET, null);
+    }
+    
     @PostMapping("/proxy/contact")
     public ResponseEntity<Object> createContactRequest(@RequestBody Object payload) {
         return proxyToUser("/api/users/contacts", HttpMethod.POST, payload);

@@ -6,11 +6,13 @@ const BFF = "http://localhost:8082/api/dashboard";
 const EMPTY_FORM = {
   idConductorRef: "", idDespachadorRef: "", idCamion: "",
   origenDireccion: "", destinoDireccion: "",
-  latDestino: "", lngDestino: "", distanciaEstimadaKm: ""
+  latDestino: "", lngDestino: "", distanciaEstimadaKm: "", idCliente: ""
 };
 
 const ManageRoutes = () => {
   const [routes, setRoutes] = useState([]);
+  const [users, setUsers] = useState([]);
+  const [trucks, setTrucks] = useState([]);
   const [form, setForm] = useState(EMPTY_FORM);
   const [editingId, setEditingId] = useState(null);
   const [showForm, setShowForm] = useState(false);
@@ -20,17 +22,48 @@ const ManageRoutes = () => {
   const formRef = useRef(null);
   const confirmRef = useRef(null);
 
+  const [clients, setClients] = useState([]);
+
   const fetchRoutes = useCallback(() => {
     fetch(BFF)
       .then(r => r.json())
-      .then(data => setRoutes(data.routes || []))
+      .then(data => {
+         setRoutes(data.routes || []);
+         setUsers(data.users || []);
+         setTrucks(data.trucks || []);
+      })
       .catch(() => { });
   }, []);
 
-  useEffect(() => { fetchRoutes(); }, [fetchRoutes]);
+  const fetchClients = useCallback(() => {
+    fetch(`${BFF}/proxy/clients`)
+      .then(r => r.json())
+      .then(data => setClients(data || []))
+      .catch(() => { });
+  }, []);
+
+  useEffect(() => { fetchRoutes(); fetchClients(); }, [fetchRoutes, fetchClients]);
 
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
+  };
+
+  const handleClientChange = (e) => {
+    const selectedId = e.target.value;
+    if (!selectedId) {
+       setForm({ ...form, idCliente: "", latDestino: "", lngDestino: "", destinoDireccion: "" });
+       return;
+    }
+    const client = clients.find(c => c.idCliente == selectedId);
+    if (client) {
+       setForm({ 
+         ...form, 
+         idCliente: selectedId, 
+         latDestino: client.latitud || "", 
+         lngDestino: client.longitud || "",
+         destinoDireccion: client.direccionFacturacion || ""
+       });
+    }
   };
 
   const resetForm = () => {
@@ -70,7 +103,42 @@ const ManageRoutes = () => {
         body: JSON.stringify(payload)
       });
       if (res.ok) {
-        setMsg(editingId ? "Ruta actualizada" : "Ruta creada");
+        const savedRoute = editingId ? null : await res.json();
+        
+        // Auto-create Cargo and Invoice if it's a new route and a client was selected
+        if (!editingId && form.idCliente && savedRoute && savedRoute.idRuta) {
+           try {
+             // Create Cargo
+             await fetch(`${BFF}/proxy/cargo`, {
+                 method: "POST", headers: { "Content-Type": "application/json" },
+                 body: JSON.stringify({
+                     route: { idRuta: savedRoute.idRuta },
+                     cliente: { idCliente: parseInt(form.idCliente) },
+                     descripcionProductos: "Carga consolidada automática",
+                     tipoCarga: "General",
+                     pesoToneladas: 15.0,
+                     volumenM3: 30.0,
+                     estadoEntrega: "Pendiente"
+                 })
+             });
+             // Create Invoice
+             await fetch(`${BFF}/proxy/invoices`, {
+                 method: "POST", headers: { "Content-Type": "application/json" },
+                 body: JSON.stringify({
+                     route: { idRuta: savedRoute.idRuta },
+                     cliente: { idCliente: parseInt(form.idCliente) },
+                     montoNeto: 1000000.0,
+                     impuestos: 190000.0,
+                     totalPagar: 1190000.0,
+                     estadoPago: "Pendiente"
+                 })
+             });
+           } catch (err) {
+             console.error("Error auto-creating cargo/invoice", err);
+           }
+        }
+
+        setMsg(editingId ? "Ruta actualizada" : "Ruta, Cargamento y Factura creados exitosamente");
         resetForm();
         fetchRoutes();
       } else {
@@ -88,7 +156,8 @@ const ManageRoutes = () => {
       destinoDireccion: r.destinoDireccion || "",
       latDestino: r.latDestino || "",
       lngDestino: r.lngDestino || "",
-      distanciaEstimadaKm: r.distanciaEstimadaKm || ""
+      distanciaEstimadaKm: r.distanciaEstimadaKm || "",
+      idCliente: "" // Editing doesn't re-select the client easily without looking up cargo
     });
     setEditingId(r.idRuta);
     setShowForm(true);
@@ -151,19 +220,40 @@ const ManageRoutes = () => {
           <form onSubmit={handleSubmit} className="crud-form">
             <div className="form-row">
               <input name="origenDireccion" value={form.origenDireccion} onChange={handleChange} placeholder="Origen" required />
-              <input name="destinoDireccion" value={form.destinoDireccion} onChange={handleChange} placeholder="Destino" required />
+              
+              <select name="idCliente" value={form.idCliente} onChange={handleClientChange} required={!editingId}>
+                <option value="">-- Seleccionar Cliente Destino --</option>
+                {clients.map(c => (
+                  <option key={c.idCliente} value={c.idCliente}>
+                    {c.razonSocial} ({c.rutEmpresa})
+                  </option>
+                ))}
+              </select>
             </div>
             <div className="form-row">
-              <div className="field-group">
-                <input type="number" step="any" name="latDestino" value={form.latDestino} onChange={handleChange} placeholder="Latitud destino" required />
-                {errors.coords && <span className="field-error">{errors.coords}</span>}
-              </div>
-              <input type="number" step="any" name="lngDestino" value={form.lngDestino} onChange={handleChange} placeholder="Longitud destino" required />
+              <input name="destinoDireccion" value={form.destinoDireccion} onChange={handleChange} placeholder="Direccion Destino" required readOnly={!!form.idCliente} style={form.idCliente ? {backgroundColor: '#e9ecef'} : {}} />
+              <input type="number" step="any" name="latDestino" value={form.latDestino} onChange={handleChange} placeholder="Latitud destino" required readOnly={!!form.idCliente} style={form.idCliente ? {backgroundColor: '#e9ecef'} : {}} />
+              <input type="number" step="any" name="lngDestino" value={form.lngDestino} onChange={handleChange} placeholder="Longitud destino" required readOnly={!!form.idCliente} style={form.idCliente ? {backgroundColor: '#e9ecef'} : {}} />
             </div>
             <div className="form-row">
-              <input type="number" name="idConductorRef" value={form.idConductorRef} onChange={handleChange} placeholder="ID Conductor" required />
-              <input type="number" name="idDespachadorRef" value={form.idDespachadorRef} onChange={handleChange} placeholder="ID Despachador" required />
-              <input type="number" name="idCamion" value={form.idCamion} onChange={handleChange} placeholder="ID Camion" required />
+              <select name="idConductorRef" value={form.idConductorRef} onChange={handleChange} required>
+                <option value="">-- Conductor --</option>
+                {users.filter(u => u.rol && u.rol.nombreRol === 'ROLE_CONDUCTOR').map(u => (
+                  <option key={u.idUsuario} value={u.idUsuario}>{u.nombres} {u.apellidos} (RUT: {u.rut})</option>
+                ))}
+              </select>
+              <select name="idDespachadorRef" value={form.idDespachadorRef} onChange={handleChange} required>
+                <option value="">-- Despachador --</option>
+                {users.filter(u => u.rol && u.rol.nombreRol === 'ROLE_DESPACHADOR').map(u => (
+                  <option key={u.idUsuario} value={u.idUsuario}>{u.nombres} {u.apellidos} (RUT: {u.rut})</option>
+                ))}
+              </select>
+              <select name="idCamion" value={form.idCamion} onChange={handleChange} required>
+                <option value="">-- Camion --</option>
+                {trucks.map(t => (
+                  <option key={t.idCamion} value={t.idCamion}>{t.patente} ({t.marcaModelo})</option>
+                ))}
+              </select>
             </div>
             <input type="number" step="any" name="distanciaEstimadaKm" value={form.distanciaEstimadaKm} onChange={handleChange} placeholder="Distancia estimada (km)" required />
             <button type="submit" className="btn-primary">{editingId ? "Guardar Cambios" : "Crear Ruta"}</button>

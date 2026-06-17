@@ -8,6 +8,7 @@ import ManageUsers from "./components/ManageUsers";
 import ManageClients from "./components/ManageClients";
 import ManageInvoices from "./components/ManageInvoices";
 import ManageCargo from "./components/ManageCargo";
+import ManageContacts from "./components/ManageContacts";
 import Telemetry from "./components/Telemetry";
 import Login from "./components/Login";
 import "./App.css";
@@ -62,9 +63,14 @@ const AppNav = () => {
         </NavLink>
       )}
       {role === ROLES.ADMIN && (
-        <NavLink to="/usuarios" className={({ isActive }) => isActive ? "nav-link active" : "nav-link"}>
-          Usuarios
-        </NavLink>
+        <>
+          <NavLink to="/usuarios" className={({ isActive }) => isActive ? "nav-link active" : "nav-link"}>
+            Usuarios
+          </NavLink>
+          <NavLink to="/contactos" className={({ isActive }) => isActive ? "nav-link active" : "nav-link"}>
+            Contactos
+          </NavLink>
+        </>
       )}
     </nav>
   );
@@ -99,6 +105,7 @@ const AppContent = () => {
           <Route path="/carga" element={<ManageCargo />} />
           <Route path="/telemetria" element={<Telemetry />} />
           <Route path="/usuarios" element={<ManageUsers />} />
+          <Route path="/contactos" element={<ManageContacts />} />
         </Routes>
       </div>
     </Router>

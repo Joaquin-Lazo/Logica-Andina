@@ -114,68 +114,25 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // ===================== LIVE MAP =====================
-    const map = L.map('live-map').setView([-33.4569, -70.6482], 7); // Santiago, zoom out to see routes
+    // ===================== STATIC MAP =====================
+    const map = L.map('live-map').setView([-33.4173, -70.6066], 15); // Costanera Center
 
-    // Dark-themed tile layer
-    L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
-        attribution: '&copy; <a href="https://carto.com/">CARTO</a>',
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
         maxZoom: 19
     }).addTo(map);
 
-    // Custom green truck icon
-    const truckIcon = L.divIcon({
-        html: '<i class="bi bi-truck" style="font-size:24px;color:#198754;text-shadow:0 0 6px rgba(25,135,84,0.6);"></i>',
-        className: 'truck-marker',
-        iconSize: [30, 30],
-        iconAnchor: [15, 15]
+    const officeIcon = L.divIcon({
+        html: '<i class="bi bi-geo-alt-fill" style="font-size:32px;color:#0d6efd;text-shadow:0 0 10px rgba(13,110,253,0.8);"></i>',
+        className: 'office-marker',
+        iconSize: [32, 32],
+        iconAnchor: [16, 32]
     });
 
-    let truckMarkers = {};
-
-    function updateMapMarkers() {
-        fetch(bffUrl + '/api/dashboard')
-            .then(r => r.json())
-            .then(data => {
-                const routes = (data.routes || []).filter(r => r.estado === 'En Transito');
-
-                // Remove markers for routes no longer in transit
-                Object.keys(truckMarkers).forEach(id => {
-                    if (!routes.find(r => r.idRuta == id)) {
-                        map.removeLayer(truckMarkers[id]);
-                        delete truckMarkers[id];
-                    }
-                });
-
-                routes.forEach(ruta => {
-                    // Use lat/lng from the route's destination, offset by progress
-                    // Since we don't have real GPS from telemetry yet, simulate a position
-                    const progress = (ruta.progressPercent || 0) / 100;
-                    const startLat = -33.4569; // Santiago
-                    const startLng = -70.6482;
-                    const endLat = ruta.latDestino || startLat;
-                    const endLng = ruta.lngDestino || startLng;
-                    const curLat = startLat + (endLat - startLat) * progress;
-                    const curLng = startLng + (endLng - startLng) * progress;
-
-                    const patente = (ruta.truck && ruta.truck.patente) ? ruta.truck.patente : 'N/A';
-                    const destino = ruta.destinoDireccion || 'Desconocido';
-
-                    if (truckMarkers[ruta.idRuta]) {
-                        truckMarkers[ruta.idRuta].setLatLng([curLat, curLng]);
-                    } else {
-                        const marker = L.marker([curLat, curLng], { icon: truckIcon })
-                            .addTo(map)
-                            .bindPopup('<b>' + patente + '</b><br>Destino: ' + destino + '<br>Progreso: ' + (ruta.progressPercent || 0) + '%');
-                        truckMarkers[ruta.idRuta] = marker;
-                    }
-                });
-            })
-            .catch(err => console.error('Error updating map:', err));
-    }
-
-    updateMapMarkers();
-    setInterval(updateMapMarkers, REFRESH_INTERVAL);
+    L.marker([-33.4173, -70.6066], { icon: officeIcon })
+        .addTo(map)
+        .bindPopup('<b>Logística Andina - Casa Matriz</b><br>Costanera Center, Providencia')
+        .openPopup();
 
     // ===================== NAVBAR SCROLL EFFECT =====================
     window.addEventListener('scroll', () => {

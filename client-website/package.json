@@ -1,0 +1,20 @@
+{
+  "name": "logistica-andina-client",
+  "version": "1.0.0",
+  "description": "Sitio web informativo para clientes de Logística Andina",
+  "main": "js/app.js",
+  "scripts": {
+    "start": "lite-server",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "logistica",
+    "transporte",
+    "frontend"
+  ],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "lite-server": "^2.6.1"
+  }
+}
