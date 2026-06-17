@@ -25,6 +25,14 @@ CREATE TABLE IF NOT EXISTS usuarios (
     CONSTRAINT fk_usuarios_roles FOREIGN KEY (id_rol) REFERENCES roles(id_rol) ON DELETE RESTRICT
 );
 
+CREATE TABLE IF NOT EXISTS contact_requests (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    nombre VARCHAR(255),
+    email VARCHAR(255),
+    mensaje VARCHAR(1000),
+    fecha_creacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
 -- Data para auth_db
 INSERT INTO roles (nombre_rol, descripcion) VALUES 
 ('ROLE_ADMINISTRADOR', 'Acceso total al sistema'),

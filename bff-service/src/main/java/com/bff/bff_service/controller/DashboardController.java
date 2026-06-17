@@ -2,6 +2,7 @@ package com.bff.bff_service.controller;
 
 import com.bff.bff_service.dto.DashboardResponse;
 import com.bff.bff_service.dto.RouteSummaryDTO;
+import com.bff.bff_service.dto.TruckSummaryDTO;
 import com.bff.bff_service.dto.UserSummaryDTO;
 import com.bff.bff_service.service.AuthService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -394,13 +395,27 @@ public class DashboardController {
             headers.set("Authorization", "Bearer " + token);
             headers.setContentType(MediaType.APPLICATION_JSON);
 
-            HttpEntity<RouteSummaryDTO> request = new HttpEntity<>(route, headers);
+            // 1. Update the route status to Completada
+            HttpEntity<RouteSummaryDTO> routeRequest = new HttpEntity<>(route, headers);
             restTemplate.exchange(
                     routeServiceUrl + "/api/routes/" + route.getIdRuta(),
                     HttpMethod.PUT,
-                    request,
+                    routeRequest,
                     Object.class);
             System.out.println("Ruta " + route.getIdRuta() + " auto-completada en base de datos.");
+
+            // 2. Update the truck status to Disponible
+            if (route.getTruck() != null && route.getTruck().getIdCamion() != null) {
+                TruckSummaryDTO truckUpdate = route.getTruck();
+                truckUpdate.setEstadoOperativo("Disponible");
+                HttpEntity<TruckSummaryDTO> truckRequest = new HttpEntity<>(truckUpdate, headers);
+                restTemplate.exchange(
+                        routeServiceUrl + "/api/camiones/" + truckUpdate.getIdCamion(),
+                        HttpMethod.PUT,
+                        truckRequest,
+                        Object.class);
+                System.out.println("Camion " + truckUpdate.getIdCamion() + " (" + truckUpdate.getPatente() + ") marcado como Disponible.");
+            }
         } catch (Exception e) {
             System.err.println("Error auto-completando ruta en DB: " + e.getMessage());
         }
