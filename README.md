@@ -1,50 +1,92 @@
-# Logística Andina - Arquitectura de Microservicios
+# Logística Andina — Plataforma de Gestión Logística
 
-Proyecto final de Arquitectura de Microservicios para Logística Andina. Este sistema permite gestionar rutas, camiones, usuarios y telemetría de forma distribuida utilizando Spring Boot, RabbitMQ, MySQL y MongoDB.
+**Sistema de Microservicios para Trazabilidad y Telemetría**
 
-## Arquitectura
+Logística Andina es un MVP diseñado para modernizar la gestión de flotas, reemplazando un monolito heredado con una arquitectura distribuida orientada a microservicios en la nube. Este sistema proporciona gestión de rutas, control de cargas, facturación, y monitoreo de telemetría GPS en tiempo real.
 
-El sistema está compuesto por 4 servicios backend y un cliente web estático:
+## Arquitectura del Sistema
 
-1. **BFF Service (Backend-For-Frontend)**: Actúa como API Gateway ligero y orquestador. Puerto 8082.
-2. **User Service**: Gestión de usuarios, roles, autenticación JWT y contactos. Puerto 8080. Base de datos MySQL (`users_db`).
-3. **Route Service**: Gestión de rutas, clientes, camiones, cargamentos y facturación. Puerto 8081. Base de datos MySQL (`routes_db`).
-4. **Telemetry Service**: Ingesta de datos GPS simulados, alertas en tiempo real vía RabbitMQ. Puerto 8083. Base de datos MongoDB (`telemetry_db`).
-5. **Client Website**: Interfaz de usuario interactiva (HTML/JS/Bootstrap) que consume el BFF para mostrar el dashboard, mapa en vivo (Leaflet.js) y formularios.
+El proyecto está construido bajo una arquitectura de microservicios con un patrón **BFF (Backend for Frontend)** y comunicación asíncrona mediante **RabbitMQ** para soportar alta escalabilidad. Todo el sistema está securizado transversalmente mediante **JWT (JSON Web Tokens)**.
 
-## Tecnologías Utilizadas
-- **Java 17** con **Spring Boot 3.x**
-- **Spring Data JPA** y **Spring Security** (JWT)
-- **RabbitMQ** para mensajería asíncrona
-- **MySQL** (Relacional) y **MongoDB** (NoSQL)
-- **Docker & Docker Compose** para orquestación de contenedores
-- **JUnit 5 & Mockito** (Pruebas unitarias > 60% cobertura)
+### Componentes y Servicios:
 
-## Instrucciones de Instalación y Ejecución
+1. **`user-service` (Puerto 8080)**:
+   - **Responsabilidad:** Gestión de usuarios, autenticación, emisión de tokens JWT, y recepción de formularios de contacto público.
+   - **Base de Datos:** `mysql_users` (auth_db).
 
-Todo el sistema está contenerizado y orquestado mediante Docker Compose.
+2. **`route-service` (Puerto 8081)**:
+   - **Responsabilidad:** Motor logístico principal. Maneja CRUDs de rutas, camiones, cargamentos, clientes y facturas.
+   - **Mensajería:** Publica eventos de inicio y fin de rutas hacia RabbitMQ.
+   - **Base de Datos:** `mysql_routes` (routes_db).
 
-1. Clonar este repositorio.
-2. Asegurarse de tener Docker y Docker Compose instalados.
-3. En la raíz del proyecto, ejecutar:
+3. **`telemetry-service` (Puerto 8083)**:
+   - **Responsabilidad:** Monitorea flotas en tiempo real. Simula el desplazamiento GPS y consume coordenadas desde la cola de RabbitMQ, aislando la base de datos de picos de tráfico. Genera alertas de seguridad automáticas por exceso de velocidad.
+   - **Base de Datos:** `mysql_telemetry` (telemetry_db).
 
+4. **`bff-service` (Puerto 8082)**:
+   - **Responsabilidad:** Actúa como API Gateway (Backend for Frontend). Es el único punto de contacto para las aplicaciones frontend, enrutando de manera segura las peticiones hacia el microservicio correspondiente.
+
+5. **`rabbitmq` (Puertos 5672 / 15672)**:
+   - **Responsabilidad:** Broker de mensajería (Event-Driven Architecture) utilizado para manejar el alto volumen de datos del tracking GPS sin saturar las bases de datos.
+
+6. **`frontend-service` (Puerto 8088)**:
+   - **Responsabilidad:** Interfaz de usuario administrativa (Panel React/Vite). Provee dashboards, telemetría en vivo y formularios de gestión para los roles de Administrador, Despachador y Conductor.
+
+7. **`client-website` (Puerto 80)**:
+   - **Responsabilidad:** Sitio web público y corporativo para los clientes finales. Contiene información comercial y el formulario de "Contáctanos" que se integra directamente con el `user-service`.
+
+---
+
+## Despliegue Local (Docker Compose)
+
+El proyecto está completamente contenerizado en un "Monorepo" local para facilitar su evaluación y ejecución. Todos los microservicios, bases de datos, y brokers de mensajería se orquestan mediante **Docker Compose**.
+
+### Requisitos previos:
+- **Docker** y **Docker Desktop** instalados y ejecutándose.
+
+### Instrucciones de ejecución:
+
+1. Abre una terminal en la raíz de este proyecto.
+2. Ejecuta el siguiente comando para compilar las imágenes y levantar toda la arquitectura:
+   ```bash
+   docker-compose up -d --build
+   ```
+3. Espera a que los contenedores descarguen sus dependencias y cambien a estado *Healthy* y *Started* (puede tardar entre 1 y 3 minutos la primera vez mientras compila Java e inicializa MySQL).
+4. Accede a las interfaces en tu navegador:
+   - **Sitio Web Público:** [http://localhost](http://localhost)
+   - **Panel Administrativo:** [http://localhost:8088](http://localhost:8088) (*user: admin@transandina.cl / pass: password123*)
+   - **Panel RabbitMQ:** [http://localhost:15672](http://localhost:15672) *(user: rabbit / pass: rabbit123)*
+
+### Para detener el sistema:
+Si deseas apagar los contenedores, ejecuta:
 ```bash
-docker-compose up --build
+docker-compose down
 ```
+*(Si deseas reiniciar la base de datos desde cero, borrando todos los registros almacenados, puedes añadir el flag `-v` para destruir los volúmenes de datos: `docker-compose down -v`).*
 
-Esto levantará 10 contenedores:
-- Nginx (Frontend en el puerto 80)
-- BFF Service
-- User Service
-- Route Service
-- Telemetry Service
-- RabbitMQ (Panel de control en el puerto 15672)
-- 3 Bases de datos MySQL
-- MongoDB
+---
 
-## Accesos Rápidos
-- **Frontend / Dashboard**: `http://localhost:80`
-- **Swagger UI (Users)**: `http://localhost:8080/swagger-ui.html`
-- **Swagger UI (Routes)**: `http://localhost:8081/swagger-ui.html`
-- **Swagger UI (Telemetry)**: `http://localhost:8083/swagger-ui.html`
-- **RabbitMQ Admin**: `http://localhost:15672` (user/password)
+## Pruebas Unitarias y Cobertura (JaCoCo)
+
+Cada microservicio del backend cuenta con su propia batería de pruebas unitarias implementadas con **JUnit 5** y **Mockito**. Para medir la cobertura de estas pruebas se utiliza **JaCoCo**.
+
+### Cómo ejecutar las pruebas:
+Para ejecutar las pruebas y generar los reportes de cobertura, debes ejecutar Maven dentro de la carpeta de cada microservicio:
+
+1. Abre una terminal y navega hacia la carpeta del microservicio que deseas probar (por ejemplo, `route_service`):
+   ```bash
+   cd route_service
+   ```
+2. Ejecuta el comando de Maven para limpiar, probar y generar el reporte:
+   ```bash
+   ./mvnw clean test jacoco:report
+   ```
+   *(Si estás en Windows PowerShell, usa `.\mvnw.cmd clean test jacoco:report`)*
+
+### Cómo revisar los reportes de cobertura:
+1. Una vez finalizado el comando anterior con éxito (`BUILD SUCCESS`), navega a la carpeta generada:
+   ```bash
+   ruta_del_microservicio/target/site/jacoco/
+   ```
+2. Abre el archivo **`index.html`** en cualquier navegador web.
+3. Se desplegará un reporte visual interactivo mostrando el porcentaje de líneas de código cubiertas, ramas (branches) y métodos, permitiendo navegar clase por clase para verificar qué lógica de negocio está completamente validada por los tests.

@@ -113,7 +113,7 @@ const ManageRoutes = () => {
                  method: "POST", headers: { "Content-Type": "application/json" },
                  body: JSON.stringify({
                      route: { idRuta: savedRoute.idRuta },
-                     cliente: { idCliente: parseInt(form.idCliente) },
+                     client: { idCliente: parseInt(form.idCliente) },
                      descripcionProductos: "Carga consolidada automática",
                      tipoCarga: "General",
                      pesoToneladas: 15.0,
@@ -126,7 +126,7 @@ const ManageRoutes = () => {
                  method: "POST", headers: { "Content-Type": "application/json" },
                  body: JSON.stringify({
                      route: { idRuta: savedRoute.idRuta },
-                     cliente: { idCliente: parseInt(form.idCliente) },
+                     client: { idCliente: parseInt(form.idCliente) },
                      montoNeto: 1000000.0,
                      impuestos: 190000.0,
                      totalPagar: 1190000.0,

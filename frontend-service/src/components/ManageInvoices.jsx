@@ -75,7 +75,7 @@ const ManageInvoices = () => {
 
     const payload = {
       route: { idRuta: parseInt(form.idRuta) },
-      cliente: { idCliente: parseInt(form.idCliente) },
+      client: { idCliente: parseInt(form.idCliente) },
       montoNeto: parseFloat(form.montoNeto),
       impuestos: parseFloat(form.impuestos),
       totalPagar: parseFloat(form.totalPagar),

@@ -65,7 +65,7 @@ const ManageCargo = () => {
 
     const payload = {
       route: { idRuta: parseInt(form.idRuta) },
-      cliente: { idCliente: parseInt(form.idCliente) },
+      client: { idCliente: parseInt(form.idCliente) },
       descripcionProductos: form.descripcionProductos,
       tipoCarga: form.tipoCarga,
       pesoToneladas: parseFloat(form.pesoToneladas),

@@ -51,8 +51,16 @@ const Dashboard = () => {
   };
 
   const filteredRoutes = (role === ROLES.CONDUCTOR || role === 'CLIENTE')
-    ? dashboardData.routes.filter(r => r.idConductorRef === user.idUsuario || r.clienteId === user.idUsuario) 
+    ? dashboardData.routes.filter(r => r.idConductorRef === user.idUsuario || r.cliente?.idCliente === user.idUsuario) 
     : dashboardData.routes;
+
+  const filteredAlerts = (role === ROLES.CONDUCTOR || role === 'CLIENTE')
+    ? (dashboardData.alerts || []).filter(a => filteredRoutes.some(r => r.idRuta === a.logGps?.idRutaRef))
+    : (dashboardData.alerts || []);
+
+  const filteredTrucks = (role === ROLES.CONDUCTOR)
+    ? (dashboardData.trucks || []).filter(t => filteredRoutes.some(r => r.truck?.idCamion === t.idCamion))
+    : (dashboardData.trucks || []);
 
   return (
     <main className="dashboard-container">
@@ -77,14 +85,16 @@ const Dashboard = () => {
         <>
           <DashboardKPIs 
             routes={filteredRoutes} 
-            trucks={dashboardData.trucks || []} 
-            alerts={dashboardData.alerts || []} 
+            trucks={filteredTrucks} 
+            alerts={filteredAlerts} 
           />
-          <DashboardCharts
-            routes={filteredRoutes}
-            trucks={dashboardData.trucks || []}
-            users={dashboardData.users || []}
-          />
+          {role !== ROLES.CONDUCTOR && role !== 'CLIENTE' && (
+            <DashboardCharts
+              routes={filteredRoutes}
+              trucks={filteredTrucks}
+              users={dashboardData.users || []}
+            />
+          )}
 
           <div className="tables-wrapper-vertical">
             <section className="data-section full-width">
@@ -143,7 +153,7 @@ const Dashboard = () => {
               </div>
             </section>
 
-            {role !== ROLES.CONDUCTOR && role !== 'CLIENTE' && (
+            {role === ROLES.ADMINISTRADOR && (
               <section className="data-section full-width">
                 <h2>
                   Usuarios del Sistema

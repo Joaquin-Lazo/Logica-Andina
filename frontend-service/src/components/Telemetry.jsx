@@ -14,6 +14,10 @@ const Telemetry = () => {
   const [pageSize, setPageSize] = useState(25);
   const paginationRef = useRef(null);
 
+  const [alertPage, setAlertPage] = useState(1);
+  const [alertPageSize, setAlertPageSize] = useState(10);
+  const alertPaginationRef = useRef(null);
+
   const fetchData = useCallback(() => {
     const logsUrl = selectedRoute
       ? `${BFF}/proxy/telemetry/route/${selectedRoute}`
@@ -115,7 +119,7 @@ const Telemetry = () => {
               </thead>
               <tbody>
                 {alerts.length === 0 ? <tr><td colSpan="5" className="empty-cell">Sin alertas</td></tr> :
-                  alerts.map(a => (
+                  alerts.slice((alertPage - 1) * alertPageSize, alertPage * alertPageSize).map(a => (
                     <tr key={a.idAlerta}>
                       <td className="cell-id">{a.idAlerta}</td>
                       <td>{a.tipoAlerta}</td>
@@ -132,6 +136,16 @@ const Telemetry = () => {
               </tbody>
             </table>
           </div>
+          {alerts.length > alertPageSize && (
+            <div className="pagination-bar" ref={alertPaginationRef}>
+              <button className="btn-sm btn-edit" disabled={alertPage <= 1} onClick={() => { setAlertPage(p => p - 1); setTimeout(() => alertPaginationRef.current?.scrollIntoView({ behavior: 'smooth', block: 'nearest' }), 50); }}>Anterior</button>
+              <span className="page-info">Pagina {alertPage} de {Math.ceil(alerts.length / alertPageSize)}</span>
+              <button className="btn-sm btn-edit" disabled={alertPage >= Math.ceil(alerts.length / alertPageSize)} onClick={() => { setAlertPage(p => p + 1); setTimeout(() => alertPaginationRef.current?.scrollIntoView({ behavior: 'smooth', block: 'nearest' }), 50); }}>Siguiente</button>
+              <select className="conductor-select" value={alertPageSize} onChange={(e) => { setAlertPageSize(Number(e.target.value)); setAlertPage(1); }}>
+                {[10, 25, 50].map(s => <option key={s} value={s}>{s} por pagina</option>)}
+              </select>
+            </div>
+          )}
         </section>
       </div>
     </main>
