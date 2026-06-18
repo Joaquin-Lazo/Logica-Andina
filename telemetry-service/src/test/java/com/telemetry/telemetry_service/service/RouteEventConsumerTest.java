@@ -1,8 +1,8 @@
 package com.telemetry.telemetry_service.service;
 
 import com.telemetry.telemetry_service.dto.RouteEventDTO;
-import com.telemetry.telemetry_service.model.TelemetryLog;
-import com.telemetry.telemetry_service.repository.TelemetryLogRepository;
+import com.telemetry.telemetry_service.dto.TelemetryLogDTO;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -17,7 +17,7 @@ import static org.mockito.Mockito.*;
 class RouteEventConsumerTest {
 
     @Mock
-    private TelemetryLogRepository logRepository;
+    private RabbitTemplate rabbitTemplate;
 
     @InjectMocks
     private RouteEventConsumer routeEventConsumer;
@@ -39,12 +39,10 @@ class RouteEventConsumerTest {
                 "Destino"
         );
 
-        when(logRepository.save(any(TelemetryLog.class))).thenReturn(new TelemetryLog());
-
         routeEventConsumer.handleRouteEvent(event);
 
-        // Verify saveLog was called initially
-        verify(logRepository, times(1)).save(any(TelemetryLog.class));
+        // Verify convertAndSend was called initially
+        verify(rabbitTemplate, times(1)).convertAndSend(anyString(), anyString(), any(TelemetryLogDTO.class));
     }
 
     @Test
@@ -60,12 +58,10 @@ class RouteEventConsumerTest {
                 "Destino"
         );
 
-        when(logRepository.save(any(TelemetryLog.class))).thenReturn(new TelemetryLog());
-
         routeEventConsumer.handleRouteEvent(event);
 
-        // Verify saveLog was called at completion
-        verify(logRepository, times(1)).save(any(TelemetryLog.class));
+        // Verify convertAndSend was called at completion
+        verify(rabbitTemplate, times(1)).convertAndSend(anyString(), anyString(), any(TelemetryLogDTO.class));
     }
 
     @Test
@@ -83,7 +79,7 @@ class RouteEventConsumerTest {
 
         routeEventConsumer.handleRouteEvent(event);
 
-        // Verify saveLog was NOT called
-        verify(logRepository, never()).save(any(TelemetryLog.class));
+        // Verify convertAndSend was NOT called
+        verify(rabbitTemplate, never()).convertAndSend(anyString(), anyString(), any(TelemetryLogDTO.class));
     }
 }

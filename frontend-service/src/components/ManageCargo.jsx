@@ -92,8 +92,8 @@ const ManageCargo = () => {
 
   const handleEdit = (c) => {
     setForm({
-      idRuta: c.route?.idRuta || "",
-      idCliente: c.cliente?.idCliente || c.client?.idCliente || "",
+      idRuta: c.route?.idRuta ? String(c.route.idRuta) : "",
+      idCliente: c.cliente?.idCliente ? String(c.cliente.idCliente) : (c.client?.idCliente ? String(c.client.idCliente) : ""),
       descripcionProductos: c.descripcionProductos || "",
       tipoCarga: c.tipoCarga || "",
       pesoToneladas: c.pesoToneladas || "",

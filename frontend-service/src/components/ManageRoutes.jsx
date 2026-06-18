@@ -6,7 +6,7 @@ const BFF = "http://localhost:8082/api/dashboard";
 const EMPTY_FORM = {
   idConductorRef: "", idDespachadorRef: "", idCamion: "",
   origenDireccion: "", destinoDireccion: "",
-  latDestino: "", lngDestino: "", distanciaEstimadaKm: "", idCliente: ""
+  latDestino: "", lngDestino: "", distanciaEstimadaKm: "", idCliente: "", estado: "Pendiente"
 };
 
 const ManageRoutes = () => {
@@ -93,7 +93,7 @@ const ManageRoutes = () => {
       latDestino: parseFloat(form.latDestino),
       lngDestino: parseFloat(form.lngDestino),
       distanciaEstimadaKm: parseFloat(form.distanciaEstimadaKm),
-      estado: "Pendiente"
+      estado: form.estado || "Pendiente"
     };
     try {
       const url = editingId ? `${BFF}/proxy/routes/${editingId}` : `${BFF}/proxy/routes`;
@@ -149,15 +149,16 @@ const ManageRoutes = () => {
 
   const handleEdit = (r) => {
     setForm({
-      idConductorRef: r.idConductorRef || "",
-      idDespachadorRef: r.idDespachadorRef || "",
-      idCamion: r.truck?.idCamion || "",
+      idConductorRef: r.idConductorRef ? String(r.idConductorRef) : "",
+      idDespachadorRef: r.idDespachadorRef ? String(r.idDespachadorRef) : "",
+      idCamion: r.truck?.idCamion ? String(r.truck.idCamion) : "",
       origenDireccion: r.origenDireccion || "",
       destinoDireccion: r.destinoDireccion || "",
       latDestino: r.latDestino || "",
       lngDestino: r.lngDestino || "",
       distanciaEstimadaKm: r.distanciaEstimadaKm || "",
-      idCliente: "" // Editing doesn't re-select the client easily without looking up cargo
+      idCliente: "", // Editing doesn't re-select the client easily without looking up cargo
+      estado: r.estado || "Pendiente"
     });
     setEditingId(r.idRuta);
     setShowForm(true);

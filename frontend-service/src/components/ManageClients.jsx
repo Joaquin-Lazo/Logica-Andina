@@ -3,7 +3,7 @@ import { validateRut, validateEmail, validateNotEmpty } from "../utils/validator
 
 const BFF = "http://localhost:8082/api/dashboard";
 
-const EMPTY_FORM = { rutEmpresa: "", razonSocial: "", direccionFacturacion: "", correoContacto: "" };
+const EMPTY_FORM = { rutEmpresa: "", razonSocial: "", direccionFacturacion: "", correoContacto: "", latitud: "", longitud: "" };
 
 const ManageClients = () => {
   const [clients, setClients] = useState([]);
@@ -35,6 +35,11 @@ const ManageClients = () => {
     e.razonSocial = validateNotEmpty(form.razonSocial, 'Razon social');
     e.direccionFacturacion = validateNotEmpty(form.direccionFacturacion, 'Direccion');
     e.correoContacto = validateEmail(form.correoContacto);
+    
+    // Validate coordinates if provided, otherwise leave empty
+    if (form.latitud && isNaN(parseFloat(form.latitud))) e.latitud = "Debe ser numero";
+    if (form.longitud && isNaN(parseFloat(form.longitud))) e.longitud = "Debe ser numero";
+
     const filtered = Object.fromEntries(Object.entries(e).filter(([, v]) => v));
     setErrors(filtered);
     return Object.keys(filtered).length === 0;
@@ -53,7 +58,14 @@ const ManageClients = () => {
   };
 
   const handleEdit = (c) => {
-    setForm({ rutEmpresa: c.rutEmpresa || "", razonSocial: c.razonSocial || "", direccionFacturacion: c.direccionFacturacion || "", correoContacto: c.correoContacto || "" });
+    setForm({ 
+      rutEmpresa: c.rutEmpresa || "", 
+      razonSocial: c.razonSocial || "", 
+      direccionFacturacion: c.direccionFacturacion || "", 
+      correoContacto: c.correoContacto || "",
+      latitud: c.latitud || "",
+      longitud: c.longitud || ""
+    });
     setEditingId(c.idCliente);
     setShowForm(true);
     setTimeout(() => formRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 50);
@@ -107,6 +119,16 @@ const ManageClients = () => {
                 {errors.correoContacto && <span className="field-error">{errors.correoContacto}</span>}
               </div>
             </div>
+            <div className="form-row">
+              <div className="field-group">
+                <input type="number" step="any" name="latitud" value={form.latitud} onChange={handleChange} placeholder="Latitud (Opcional)" />
+                {errors.latitud && <span className="field-error">{errors.latitud}</span>}
+              </div>
+              <div className="field-group">
+                <input type="number" step="any" name="longitud" value={form.longitud} onChange={handleChange} placeholder="Longitud (Opcional)" />
+                {errors.longitud && <span className="field-error">{errors.longitud}</span>}
+              </div>
+            </div>
             <button type="submit" className="btn-primary">{editingId ? "Guardar Cambios" : "Crear Cliente"}</button>
           </form>
         </div>
@@ -114,7 +136,7 @@ const ManageClients = () => {
       <section className="data-section full-width">
         <div className="table-scroll">
           <table className="data-table">
-            <thead><tr><th>ID</th><th>RUT</th><th>Razon Social</th><th>Direccion</th><th>Correo</th><th>Acciones</th></tr></thead>
+            <thead><tr><th>ID</th><th>RUT</th><th>Razon Social</th><th>Direccion</th><th>Coordenadas</th><th>Acciones</th></tr></thead>
             <tbody>
               {clients.length === 0 ? <tr><td colSpan="6" className="empty-cell">Sin clientes</td></tr> : clients.map(c => (
                 <tr key={c.idCliente}>
@@ -122,7 +144,9 @@ const ManageClients = () => {
                   <td className="cell-mono">{c.rutEmpresa}</td>
                   <td>{c.razonSocial}</td>
                   <td>{c.direccionFacturacion}</td>
-                  <td className="cell-email">{c.correoContacto}</td>
+                  <td className="cell-mono">
+                    {c.latitud && c.longitud ? `${c.latitud}, ${c.longitud}` : "N/A"}
+                  </td>
                   <td className="cell-actions">
                     <button className="btn-sm btn-edit" onClick={() => handleEdit(c)}>Editar</button>
                     <button className="btn-sm btn-delete" onClick={() => { setDeleteConfirmId(c.idCliente); setTimeout(() => confirmRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 50); }}>Eliminar</button>
