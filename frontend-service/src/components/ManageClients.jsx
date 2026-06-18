@@ -1,5 +1,28 @@
 import React, { useState, useEffect, useCallback, useRef } from "react";
 import { validateRut, validateEmail, validateNotEmpty } from "../utils/validators";
+import { MapContainer, TileLayer, Marker, useMapEvents } from "react-leaflet";
+import "leaflet/dist/leaflet.css";
+import L from "leaflet";
+import iconUrl from "leaflet/dist/images/marker-icon.png";
+import iconRetinaUrl from "leaflet/dist/images/marker-icon-2x.png";
+import shadowUrl from "leaflet/dist/images/marker-shadow.png";
+
+// Fix Leaflet icons
+delete L.Icon.Default.prototype._getIconUrl;
+L.Icon.Default.mergeOptions({
+  iconRetinaUrl,
+  iconUrl,
+  shadowUrl,
+});
+
+const LocationMarker = ({ setForm, position }) => {
+  useMapEvents({
+    click(e) {
+      setForm((prev) => ({ ...prev, latitud: e.latlng.lat, longitud: e.latlng.lng }));
+    },
+  });
+  return position.lat && position.lng ? <Marker position={[position.lat, position.lng]} /> : null;
+};
 
 const BFF = "http://localhost:8082/api/dashboard";
 
@@ -36,8 +59,11 @@ const ManageClients = () => {
     e.direccionFacturacion = validateNotEmpty(form.direccionFacturacion, 'Direccion');
     e.correoContacto = validateEmail(form.correoContacto);
     
-    // Validate coordinates if provided, otherwise leave empty
+    // Validate coordinates
+    e.latitud = validateNotEmpty(form.latitud, 'Latitud');
     if (form.latitud && isNaN(parseFloat(form.latitud))) e.latitud = "Debe ser numero";
+    
+    e.longitud = validateNotEmpty(form.longitud, 'Longitud');
     if (form.longitud && isNaN(parseFloat(form.longitud))) e.longitud = "Debe ser numero";
 
     const filtered = Object.fromEntries(Object.entries(e).filter(([, v]) => v));
@@ -121,14 +147,29 @@ const ManageClients = () => {
             </div>
             <div className="form-row">
               <div className="field-group">
-                <input type="number" step="any" name="latitud" value={form.latitud} onChange={handleChange} placeholder="Latitud (Opcional)" />
+                <input type="number" step="any" name="latitud" value={form.latitud} onChange={handleChange} placeholder="Latitud" required />
                 {errors.latitud && <span className="field-error">{errors.latitud}</span>}
               </div>
               <div className="field-group">
-                <input type="number" step="any" name="longitud" value={form.longitud} onChange={handleChange} placeholder="Longitud (Opcional)" />
+                <input type="number" step="any" name="longitud" value={form.longitud} onChange={handleChange} placeholder="Longitud" required />
                 {errors.longitud && <span className="field-error">{errors.longitud}</span>}
               </div>
             </div>
+            
+            <div style={{ width: "100%", marginBottom: "1rem", marginTop: "1rem" }}>
+              <label className="form-label" style={{ display: 'block', marginBottom: '8px', fontWeight: 'bold' }}>Seleccionar Coordenadas en el Mapa</label>
+              <div style={{ height: "250px", width: "100%", border: "1px solid #ccc", borderRadius: "8px", overflow: "hidden" }}>
+                <MapContainer 
+                  center={form.latitud && form.longitud ? [parseFloat(form.latitud), parseFloat(form.longitud)] : [-33.4489, -70.6693]} 
+                  zoom={10} 
+                  style={{ height: "100%", width: "100%", zIndex: 1 }}
+                >
+                  <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
+                  <LocationMarker setForm={setForm} position={{ lat: parseFloat(form.latitud), lng: parseFloat(form.longitud) }} />
+                </MapContainer>
+              </div>
+            </div>
+            
             <button type="submit" className="btn-primary">{editingId ? "Guardar Cambios" : "Crear Cliente"}</button>
           </form>
         </div>

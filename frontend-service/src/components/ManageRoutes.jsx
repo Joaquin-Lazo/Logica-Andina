@@ -1,5 +1,30 @@
 import React, { useState, useEffect, useCallback, useRef } from "react";
 import { validateCoord, validateNotEmpty, validatePositiveNumber } from "../utils/validators";
+import { MapContainer, TileLayer, Marker, useMapEvents } from "react-leaflet";
+import "leaflet/dist/leaflet.css";
+import L from "leaflet";
+import iconUrl from "leaflet/dist/images/marker-icon.png";
+import iconRetinaUrl from "leaflet/dist/images/marker-icon-2x.png";
+import shadowUrl from "leaflet/dist/images/marker-shadow.png";
+
+// Fix Leaflet icons
+delete L.Icon.Default.prototype._getIconUrl;
+L.Icon.Default.mergeOptions({
+  iconRetinaUrl,
+  iconUrl,
+  shadowUrl,
+});
+
+const LocationMarker = ({ setForm, position, readOnly }) => {
+  useMapEvents({
+    click(e) {
+      if (!readOnly) {
+        setForm((prev) => ({ ...prev, latDestino: e.latlng.lat, lngDestino: e.latlng.lng }));
+      }
+    },
+  });
+  return position.lat && position.lng ? <Marker position={[position.lat, position.lng]} /> : null;
+};
 
 const BFF = "http://localhost:8082/api/dashboard";
 
@@ -222,8 +247,8 @@ const ManageRoutes = () => {
             <div className="form-row">
               <input name="origenDireccion" value={form.origenDireccion} onChange={handleChange} placeholder="Origen" required />
               
-              <select name="idCliente" value={form.idCliente} onChange={handleClientChange} required={!editingId}>
-                <option value="">-- Seleccionar Cliente Destino --</option>
+              <select name="idCliente" value={form.idCliente} onChange={handleClientChange}>
+                <option value="">-- Sin Cliente (O Seleccionar para autocompletar) --</option>
                 {clients.map(c => (
                   <option key={c.idCliente} value={c.idCliente}>
                     {c.razonSocial} ({c.rutEmpresa})
@@ -232,10 +257,25 @@ const ManageRoutes = () => {
               </select>
             </div>
             <div className="form-row">
-              <input name="destinoDireccion" value={form.destinoDireccion} onChange={handleChange} placeholder="Direccion Destino" required readOnly={!!form.idCliente} style={form.idCliente ? {backgroundColor: '#e9ecef'} : {}} />
-              <input type="number" step="any" name="latDestino" value={form.latDestino} onChange={handleChange} placeholder="Latitud destino" required readOnly={!!form.idCliente} style={form.idCliente ? {backgroundColor: '#e9ecef'} : {}} />
-              <input type="number" step="any" name="lngDestino" value={form.lngDestino} onChange={handleChange} placeholder="Longitud destino" required readOnly={!!form.idCliente} style={form.idCliente ? {backgroundColor: '#e9ecef'} : {}} />
+              <input name="destinoDireccion" value={form.destinoDireccion} onChange={handleChange} placeholder="Direccion Destino" required />
+              <input type="number" step="any" name="latDestino" value={form.latDestino} onChange={handleChange} placeholder="Latitud destino" required />
+              <input type="number" step="any" name="lngDestino" value={form.lngDestino} onChange={handleChange} placeholder="Longitud destino" required />
             </div>
+            
+            <div style={{ width: "100%", marginBottom: "1rem", marginTop: "1rem" }}>
+              <label className="form-label" style={{ display: 'block', marginBottom: '8px', fontWeight: 'bold' }}>Seleccionar Coordenadas Destino en el Mapa</label>
+              <div style={{ height: "250px", width: "100%", border: "1px solid #ccc", borderRadius: "8px", overflow: "hidden" }}>
+                <MapContainer 
+                  center={form.latDestino && form.lngDestino ? [parseFloat(form.latDestino), parseFloat(form.lngDestino)] : [-33.4489, -70.6693]} 
+                  zoom={10} 
+                  style={{ height: "100%", width: "100%", zIndex: 1 }}
+                >
+                  <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
+                  <LocationMarker setForm={setForm} position={{ lat: parseFloat(form.latDestino), lng: parseFloat(form.lngDestino) }} readOnly={false} />
+                </MapContainer>
+              </div>
+            </div>
+            
             <div className="form-row">
               <select name="idConductorRef" value={form.idConductorRef} onChange={handleChange} required>
                 <option value="">-- Conductor --</option>
